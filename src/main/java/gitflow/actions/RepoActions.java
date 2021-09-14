@@ -34,34 +34,34 @@ class RepoActions extends BranchActionGroup implements PopupElementWithAdditiona
         actionList.add(new InitRepoAction(myRepo));
 
         //FEATURE ACTIONS
-        actionList.add(new Separator("Feature"));
+        actionList.add(new AnSeparator("Feature"));
         actionList.add(new StartFeatureAction(myRepo));
         actionList.add(new FinishFeatureAction(myRepo));
         actionList.add(new PublishFeatureAction(myRepo));
         actionList.add(new TrackFeatureAction(myRepo));
 
         //RELEASE ACTIONS
-        actionList.add(new Separator("Release"));
+        actionList.add(new AnSeparator("Release"));
         actionList.add(new StartReleaseAction(myRepo));
         actionList.add(new FinishReleaseAction(myRepo));
         actionList.add(new PublishReleaseAction(myRepo));
         actionList.add(new TrackReleaseAction(myRepo));
 
         //BUGFIX ACTIONS
-        actionList.add(new Separator("Bugfix"));
+        actionList.add(new AnSeparator("Bugfix"));
         actionList.add(new StartBugfixAction(myRepo));
         actionList.add(new FinishBugfixAction(myRepo));
         actionList.add(new PublishBugfixAction(myRepo));
         actionList.add(new TrackBugfixAction(myRepo));
 
         //HOTFIX ACTIONS
-        actionList.add(new Separator("Hotfix"));
+        actionList.add(new AnSeparator("Hotfix"));
         actionList.add(new StartHotfixAction(myRepo));
         actionList.add(new FinishHotfixAction(myRepo));
         actionList.add(new PublishHotfixAction(myRepo));
 
         if (includeAdvanced) {
-            actionList.add(new Separator("Advanced"));
+            actionList.add(new AnSeparator("Advanced"));
 
             actionList.add(new ActionGroup("Advanced", true) {
                 @NotNull

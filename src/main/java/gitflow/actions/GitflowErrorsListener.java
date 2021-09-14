@@ -1,7 +1,7 @@
 package gitflow.actions;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Key;
+import consulo.util.dataholder.Key;
 import gitflow.ui.NotifyUtil;
 
 public class GitflowErrorsListener extends GitflowLineHandler{
@@ -25,4 +25,4 @@ public class GitflowErrorsListener extends GitflowLineHandler{
         }
     }
 
-};
+}

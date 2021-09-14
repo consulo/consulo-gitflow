@@ -2,6 +2,7 @@ package gitflow.ui;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.tasks.LocalTask;
+import com.intellij.tasks.Task;
 import com.intellij.tasks.TaskManager;
 import com.intellij.tasks.actions.vcs.VcsTaskDialogPanelProvider;
 import com.intellij.tasks.ui.TaskDialogPanel;
@@ -17,7 +18,7 @@ public class GitflowTaskDialogPanelProvider extends VcsTaskDialogPanelProvider {
 
     @Nullable
     @Override
-    public TaskDialogPanel getOpenTaskPanel(@NotNull Project project, @NotNull LocalTask task) {
+    public TaskDialogPanel getOpenTaskPanel(@NotNull Project project, @NotNull Task task) {
         GitRepository currentRepo = GitBranchUtil.getCurrentRepository(project);
         GitflowBranchUtil branchUtil = GitflowBranchUtilManager.getBranchUtil(currentRepo);
         if (branchUtil.hasGitflow()) {

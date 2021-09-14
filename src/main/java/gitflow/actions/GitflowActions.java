@@ -2,6 +2,7 @@ package gitflow.actions;
 
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
+import consulo.util.dataholder.Key;
 import git4idea.actions.GitResolveConflictsAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,11 +35,11 @@ public class GitflowActions {
 
         @Nullable
         @Override
-        public Object getData(@NotNull String dataId) {
-            if(CommonDataKeys.PROJECT.getName().equals(dataId)) {
+        public Object getData(@NotNull Key dataId) {
+            if(CommonDataKeys.PROJECT == dataId) {
                 return project;
             } else {
-                throw new UnsupportedOperationException(dataId);
+                throw new UnsupportedOperationException(dataId.toString());
             }
         }
     }

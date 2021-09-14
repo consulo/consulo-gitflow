@@ -1,7 +1,7 @@
 package gitflow.actions;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Key;
+import consulo.util.dataholder.Key;
 import git4idea.commands.GitLineHandlerListener;
 
 import java.util.ArrayList;
