@@ -50,8 +50,11 @@
 				<configuration>
 					<repositoryChannel>nightly</repositoryChannel>
 					<dependencies>
-						<dependency>consulo.dotnet</dependency>
-						<dependency>consulo.dotnet.microsoft</dependency>
+						<dependency>com.intellij.git</dependency>
+						<dependency>com.intellij.tasks</dependency>
+						<dependency>com.intellij.xml</dependency>
+						<dependency>com.intellij.regexp</dependency>
+						<dependency>consulo.library.flexmark</dependency>
 					</dependencies>
 					<packaging>
 						<skip>${dev.mode}</skip>
@@ -71,15 +74,17 @@
 	</build>
 
 	<dependencies>
-	    <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>com.intellij.git</artifactId>
-            <version>${project.version}</version>
-	    </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>com.intellij.tasks</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>com.intellij.git</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>com.intellij.tasks</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 </project>
