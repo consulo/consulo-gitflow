@@ -8,6 +8,9 @@
 
     <depends>com.intellij.tasks</depends>
     <depends>com.intellij.git</depends>
+    <tags>
+        <tag>vcs</tag>
+    </tags>
 
     <actions>
         <action id="Gitflow.OpenGitflowPopup" class="gitflow.actions.OpenGitflowPopup"
