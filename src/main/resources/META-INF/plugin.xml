@@ -6,7 +6,6 @@
     <category>VCS Integration</category>
     <vendor url="http://www.opherv.com">Opher Vishnia</vendor>
 
-    <depends>com.intellij.tasks</depends>
     <depends>com.intellij.git</depends>
     <tags>
         <tag>vcs</tag>

@@ -51,7 +51,6 @@
 					<repositoryChannel>nightly</repositoryChannel>
 					<dependencies>
 						<dependency>com.intellij.git</dependency>
-						<dependency>com.intellij.tasks</dependency>
 						<dependency>com.intellij.xml</dependency>
 						<dependency>com.intellij.regexp</dependency>
 						<dependency>consulo.library.flexmark</dependency>
@@ -81,8 +80,8 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>com.intellij.tasks</artifactId>
+			<groupId>consulo</groupId>
+			<artifactId>consulo-task-impl</artifactId>
 			<version>${project.version}</version>
 			<scope>provided</scope>
 		</dependency>
