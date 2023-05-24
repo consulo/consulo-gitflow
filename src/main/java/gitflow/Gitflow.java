@@ -3,7 +3,6 @@ package gitflow;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.project.Project;
-import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandlerListener;
 import git4idea.repo.GitRemote;
@@ -15,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
  * @author Opher Vishnia / opherv.com / opherv@gmail.com
  */
 @ServiceAPI(ComponentScope.APPLICATION)
-public interface Gitflow extends Git {
+public interface Gitflow {
 
     GitCommandResult initRepo(@NotNull GitRepository repository,
                               GitflowInitOptions initOptions,

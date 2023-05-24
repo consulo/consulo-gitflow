@@ -68,7 +68,8 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
 
     public GitflowWidget(@NotNull Project project) {
         super(project);
-        project.getMessageBus().connect().subscribe(GitflowWidget.class, this);
+        
+        project.getMessageBus().connect().subscribe(GitRepositoryChangeListener.class, this);
     }
 
     @Override

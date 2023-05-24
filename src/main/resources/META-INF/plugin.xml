@@ -96,10 +96,4 @@
             <add-to-group group-id="Git.MainMenu" />
         </group>
     </actions>
-
-    <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceInterface="gitflow.Gitflow" serviceImplementation="gitflow.GitflowImpl"/>
-        <projectConfigurable instance="gitflow.GitflowConfigurable"/>
-        <statusBarWidgetFactory id="gitflowWidget" implementation="gitflow.ui.GitflowStatusBarWidgetFactory" order="after inspectionProfileWidget"/>
-    </extensions>
 </consulo-plugin>

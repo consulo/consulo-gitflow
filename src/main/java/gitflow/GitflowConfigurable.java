@@ -1,11 +1,15 @@
 package gitflow;
 
+import consulo.annotation.component.ExtensionImpl;
 import consulo.component.PropertiesComponent;
-import consulo.configurable.Configurable;
 import consulo.configurable.ConfigurationException;
+import consulo.configurable.ProjectConfigurable;
+import consulo.configurable.StandardConfigurableIds;
 import consulo.project.Project;
 import consulo.project.ProjectPropertiesComponent;
 import gitflow.ui.GitflowOptionsForm;
+import jakarta.annotation.Nonnull;
+import jakarta.inject.Inject;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -17,7 +21,8 @@ import java.util.Map;
  * @author Andreas Vogler (Andreas.Vogler@geneon.de)
  * @author Opher Vishnia (opherv@gmail.com)
  */
-public class GitflowConfigurable implements Configurable {
+@ExtensionImpl
+public class GitflowConfigurable implements ProjectConfigurable {
 
     Project project;
     GitflowOptionsForm gitflowOptionsForm;
@@ -25,11 +30,24 @@ public class GitflowConfigurable implements Configurable {
     Map<Enum<GitflowOptionsFactory.TYPE>, ArrayList<Map<String,String>>> gitflowOptions;
     Map<String, String> optionDefaults;
 
-    public GitflowConfigurable(Project project) {
+    @Inject
+    public GitflowConfigurable(Project project, ProjectPropertiesComponent projectPropertiesComponent) {
         gitflowOptions = GitflowOptionsFactory.getOptions();
-        propertiesComponent = ProjectPropertiesComponent.getInstance(project);
+        propertiesComponent = projectPropertiesComponent;
         optionDefaults = new HashMap<String, String>();
         this.project = project;
+    }
+
+    @Nonnull
+    @Override
+    public String getId() {
+        return "vcs.gitflow";
+    }
+
+    @Nullable
+    @Override
+    public String getParentId() {
+        return StandardConfigurableIds.VCS_GROUP;
     }
 
     @Override

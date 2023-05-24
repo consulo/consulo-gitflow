@@ -23,7 +23,7 @@
         <version>3-SNAPSHOT</version>
         <relativePath/>
     </parent>
-
+    
     <groupId>consulo.plugin</groupId>
     <artifactId>consulo.gitflow</artifactId>
     <version>3-SNAPSHOT</version>
