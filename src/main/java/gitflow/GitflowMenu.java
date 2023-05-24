@@ -1,9 +1,9 @@
 package gitflow;
 
-import com.intellij.openapi.actionSystem.ActionGroup;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.Project;
+import consulo.project.Project;
+import consulo.ui.ex.action.ActionGroup;
+import consulo.ui.ex.action.AnAction;
+import consulo.ui.ex.action.AnActionEvent;
 import gitflow.actions.GitflowPopupGroup;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,18 +15,18 @@ public class GitflowMenu extends ActionGroup {
 
     @NotNull
     @Override
-    public AnAction[] getChildren(@Nullable AnActionEvent anActionEvent) {
-        if (anActionEvent == null) {
+    public AnAction[] getChildren(@Nullable AnActionEvent e) {
+        if (e == null) {
             return new AnAction[0];
         }
 
-        Project project = anActionEvent.getProject();
+        Project project = e.getData(Project.KEY);
         if (project == null) {
             return new AnAction[0];
         }
 
         GitflowPopupGroup popupGroup = new GitflowPopupGroup(project, true);
 
-        return popupGroup.getActionGroup().getChildren(anActionEvent);
+        return popupGroup.getActionGroup().getChildren(e);
     }
 }

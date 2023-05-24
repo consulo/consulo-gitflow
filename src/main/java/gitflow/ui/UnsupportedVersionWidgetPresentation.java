@@ -1,14 +1,14 @@
 package gitflow.ui;
 
-import com.intellij.ide.BrowserUtil;
-import com.intellij.openapi.ui.MessageDialogBuilder;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.wm.StatusBarWidget;
-import com.intellij.util.Consumer;
+import consulo.ide.impl.idea.openapi.ui.MessageDialogBuilder;
+import consulo.platform.Platform;
+import consulo.project.ui.wm.StatusBarWidget;
+import consulo.ui.ex.awt.Messages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.event.MouseEvent;
+import java.util.function.Consumer;
 
 public class UnsupportedVersionWidgetPresentation implements StatusBarWidget.TextPresentation {
 
@@ -37,7 +37,7 @@ public class UnsupportedVersionWidgetPresentation implements StatusBarWidget.Tex
 					.yesText("More information (open browser)")
 					.noText("no");
 			if (builder.show() == Messages.OK) {
-				BrowserUtil.browse("https://github.com/OpherV/gitflow4idea/blob/develop/GITFLOW_VERSION.md");
+				Platform.current().openInBrowser("https://github.com/OpherV/gitflow4idea/blob/develop/GITFLOW_VERSION.md");
 			}
 		};
 

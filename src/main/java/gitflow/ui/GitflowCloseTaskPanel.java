@@ -1,12 +1,11 @@
 package gitflow.ui;
 
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsTaskHandler;
-import com.intellij.tasks.Task;
-import com.intellij.tasks.TaskManager;
-import com.intellij.tasks.impl.TaskManagerImpl;
-import com.intellij.tasks.ui.TaskDialogPanel;
+import consulo.ide.ServiceManager;
+import consulo.project.Project;
+import consulo.task.Task;
+import consulo.task.TaskManager;
+import consulo.task.ui.TaskDialogPanel;
+import consulo.versionControlSystem.VcsTaskHandler;
 import git4idea.repo.GitRepository;
 import gitflow.GitflowBranchUtil;
 import gitflow.GitflowBranchUtilManager;
@@ -33,7 +32,7 @@ public class GitflowCloseTaskPanel extends TaskDialogPanel {
     private Task myTask;
     private GitRepository myRepo;
     private GitflowBranchUtil gitflowBranchUtil;
-    private TaskManagerImpl myTaskManager;
+    private TaskManager myTaskManager;
     private VcsTaskHandler myVcsTaskHandler;
     private String tagMessage;
 
@@ -46,7 +45,7 @@ public class GitflowCloseTaskPanel extends TaskDialogPanel {
         gitflowState = ServiceManager.getService(GitflowState.class);
 
         gitflowBranchUtil = GitflowBranchUtilManager.getBranchUtil(myRepo);
-        myTaskManager = (TaskManagerImpl) TaskManager.getManager(project);
+        myTaskManager = TaskManager.getManager(project);
         VcsTaskHandler[] vcsTaskHAndlers = VcsTaskHandler.getAllHandlers(project);
         if (vcsTaskHAndlers.length > 0){
             //todo handle case of multiple vcs handlers

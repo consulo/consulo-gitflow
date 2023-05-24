@@ -1,9 +1,10 @@
 package gitflow;
 
-import com.intellij.ide.util.PropertiesComponent;
-import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.project.Project;
+import consulo.component.PropertiesComponent;
+import consulo.configurable.Configurable;
+import consulo.configurable.ConfigurationException;
+import consulo.project.Project;
+import consulo.project.ProjectPropertiesComponent;
 import gitflow.ui.GitflowOptionsForm;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,18 +25,11 @@ public class GitflowConfigurable implements Configurable {
     Map<Enum<GitflowOptionsFactory.TYPE>, ArrayList<Map<String,String>>> gitflowOptions;
     Map<String, String> optionDefaults;
 
-    static GitflowConfigurable instance;
-
     public GitflowConfigurable(Project project) {
         gitflowOptions = GitflowOptionsFactory.getOptions();
-        propertiesComponent = PropertiesComponent.getInstance(project);
+        propertiesComponent = ProjectPropertiesComponent.getInstance(project);
         optionDefaults = new HashMap<String, String>();
         this.project = project;
-        instance = this;
-    }
-
-    static public GitflowConfigurable getInstance(){
-        return instance;
     }
 
     @Override
@@ -57,11 +51,11 @@ public class GitflowConfigurable implements Configurable {
     }
 
     public static boolean isOptionActive(Project project, String optionId){
-        return PropertiesComponent.getInstance(project).getBoolean(optionId+"_active");
+        return ProjectPropertiesComponent.getInstance(project).getBoolean(optionId+"_active");
     }
 
     public static String getOptionTextString (Project project, String optionId){
-        String retValue = PropertiesComponent.getInstance(project).getValue(optionId+"_text");
+        String retValue = ProjectPropertiesComponent.getInstance(project).getValue(optionId+"_text");
         if (retValue == null){
             retValue = DefaultOptions.getOption(optionId);
         }

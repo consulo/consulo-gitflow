@@ -1,8 +1,8 @@
 package gitflow.ui;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.ValidationInfo;
+import consulo.project.Project;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.ui.ex.awt.ValidationInfo;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -11,7 +11,6 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.util.List;
-import java.util.stream.IntStream;
 
 /**
  * Dialog for choosing branches

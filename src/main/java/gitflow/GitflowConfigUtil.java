@@ -1,12 +1,10 @@
 package gitflow;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.application.ApplicationManager;
+import consulo.disposer.Disposer;
+import consulo.project.Project;
+import consulo.versionControlSystem.VcsException;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.config.GitConfigUtil;
 import git4idea.repo.GitRepository;
 import gitflow.ui.NotifyUtil;
@@ -14,6 +12,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  *

@@ -1,9 +1,9 @@
 package gitflow;
 
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
+import consulo.disposer.Disposer;
+import consulo.ide.ServiceManager;
+import consulo.logging.Logger;
+import consulo.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;

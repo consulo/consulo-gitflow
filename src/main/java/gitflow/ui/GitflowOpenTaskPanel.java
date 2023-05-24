@@ -1,13 +1,12 @@
 package gitflow.ui;
 
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsTaskHandler;
-import com.intellij.tasks.LocalTask;
-import com.intellij.tasks.Task;
-import com.intellij.tasks.TaskManager;
-import com.intellij.tasks.impl.TaskManagerImpl;
-import com.intellij.tasks.ui.TaskDialogPanel;
+import consulo.ide.ServiceManager;
+import consulo.project.Project;
+import consulo.task.LocalTask;
+import consulo.task.Task;
+import consulo.task.TaskManager;
+import consulo.task.ui.TaskDialogPanel;
+import consulo.versionControlSystem.VcsTaskHandler;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
 import gitflow.GitflowBranchUtil;
@@ -25,7 +24,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Collections;
 
-import static com.intellij.openapi.vcs.VcsTaskHandler.TaskInfo;
+import static consulo.versionControlSystem.VcsTaskHandler.TaskInfo;
 
 public class GitflowOpenTaskPanel extends TaskDialogPanel implements ItemListener {
     private JRadioButton noActionRadioButton;
@@ -43,7 +42,7 @@ public class GitflowOpenTaskPanel extends TaskDialogPanel implements ItemListene
     private Project myProject;
     private GitRepository myRepo;
     private GitflowBranchUtil gitflowBranchUtil;
-    private TaskManagerImpl myTaskManager;
+    private TaskManager myTaskManager;
     private VcsTaskHandler myVcsTaskHandler;
     private LocalTask myPreviousTask;
     private Task currentTask;
@@ -56,7 +55,7 @@ public class GitflowOpenTaskPanel extends TaskDialogPanel implements ItemListene
         currentTask = task;
         myRepo = repo;
 
-        myTaskManager = (TaskManagerImpl) TaskManager.getManager(project);
+        myTaskManager = TaskManager.getManager(project);
         myPreviousTask = myTaskManager.getActiveTask();
         VcsTaskHandler[] vcsTaskHAndlers = VcsTaskHandler.getAllHandlers(project);
         if (vcsTaskHAndlers.length > 0){
@@ -153,7 +152,7 @@ public class GitflowOpenTaskPanel extends TaskDialogPanel implements ItemListene
                 final LocalTask localTask = myTaskManager.getActiveTask();
 
                 //Add branch to task
-                TaskManagerImpl.addBranches(localTask, next, false);
+                myTaskManager.addBranches(localTask, next, false);
 
                 //maps branch to task
                 gitflowState.setTaskBranch(currentTask, fullBranchName);

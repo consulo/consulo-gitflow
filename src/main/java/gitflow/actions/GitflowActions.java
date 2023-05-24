@@ -1,7 +1,12 @@
 package gitflow.actions;
 
-import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.project.Project;
+import consulo.dataContext.DataContext;
+import consulo.language.editor.CommonDataKeys;
+import consulo.project.Project;
+import consulo.ui.ex.action.ActionManager;
+import consulo.ui.ex.action.ActionPlaces;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.Presentation;
 import consulo.util.dataholder.Key;
 import git4idea.actions.GitResolveConflictsAction;
 import org.jetbrains.annotations.NotNull;

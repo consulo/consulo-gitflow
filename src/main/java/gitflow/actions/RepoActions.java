@@ -1,11 +1,11 @@
 package gitflow.actions;
 
-import com.intellij.dvcs.ui.BranchActionGroup;
-import com.intellij.dvcs.ui.PopupElementWithAdditionalInfo;
-import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
-import com.intellij.openapi.fileEditor.FileEditorManagerListener;
-import com.intellij.openapi.project.Project;
+import consulo.fileEditor.event.FileEditorManagerEvent;
+import consulo.fileEditor.event.FileEditorManagerListener;
+import consulo.ide.impl.idea.dvcs.ui.BranchActionGroup;
+import consulo.ide.impl.idea.dvcs.ui.PopupElementWithAdditionalInfo;
+import consulo.project.Project;
+import consulo.ui.ex.action.*;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +25,7 @@ class RepoActions extends BranchActionGroup implements PopupElementWithAdditiona
         String repoName = repo.getRoot().getPresentableName();
         getTemplatePresentation().setText(repoName, false); // no mnemonics
         this.updateFavoriteIcon();
-        project.getMessageBus().connect().subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, this);
+        project.getMessageBus().connect().subscribe(FileEditorManagerListener.class, this);
     }
 
     public ArrayList<AnAction> getRepoActions(boolean includeAdvanced){

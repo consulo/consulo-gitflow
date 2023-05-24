@@ -1,8 +1,8 @@
 package gitflow.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.progress.Task;
+import consulo.ui.ex.action.AnActionEvent;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;

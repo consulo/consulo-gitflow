@@ -1,6 +1,6 @@
 package gitflow.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
+import consulo.ui.ex.action.AnActionEvent;
 import git4idea.repo.GitRepository;
 import gitflow.GitflowBranchUtil;
 import gitflow.GitflowBranchUtilManager;

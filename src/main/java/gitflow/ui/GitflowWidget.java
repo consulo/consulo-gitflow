@@ -15,23 +15,27 @@
  */
 package gitflow.ui;
 
-import com.intellij.ide.BrowserUtil;
-import com.intellij.ide.DataManager;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.MessageDialogBuilder;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.ui.popup.ListPopup;
-import com.intellij.openapi.vcs.ProjectLevelVcsManager;
-import com.intellij.openapi.vcs.VcsRoot;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.*;
-import com.intellij.ui.awt.RelativePoint;
-import com.intellij.ui.popup.PopupFactoryImpl;
-import com.intellij.util.Consumer;
+import consulo.application.ApplicationManager;
+import consulo.application.ui.wm.ApplicationIdeFocusManager;
+import consulo.application.ui.wm.FocusableFrame;
+import consulo.application.ui.wm.IdeFocusManager;
+import consulo.dataContext.DataContext;
+import consulo.dataContext.DataManager;
+import consulo.fileEditor.FileEditorManager;
+import consulo.fileEditor.event.FileEditorManagerEvent;
+import consulo.ide.impl.idea.ide.BrowserUtil;
+import consulo.ide.impl.idea.openapi.ui.MessageDialogBuilder;
+import consulo.ide.impl.idea.ui.popup.PopupFactoryImpl;
+import consulo.project.Project;
+import consulo.project.ui.wm.StatusBar;
+import consulo.project.ui.wm.StatusBarWidget;
+import consulo.project.ui.wm.WindowManager;
+import consulo.ui.ex.RelativePoint;
+import consulo.ui.ex.awt.Messages;
+import consulo.ui.ex.popup.ListPopup;
+import consulo.versionControlSystem.ProjectLevelVcsManager;
+import consulo.versionControlSystem.root.VcsRoot;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.branch.GitBranchUtil;
@@ -49,6 +53,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.util.function.Consumer;
 
 /**
  * Status bar widget which displays actions for git flow
@@ -63,7 +68,7 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
 
     public GitflowWidget(@NotNull Project project) {
         super(project);
-        project.getMessageBus().connect().subscribe(GitRepository.GIT_REPO_CHANGE, this);
+        project.getMessageBus().connect().subscribe(GitflowWidget.class, this);
     }
 
     @Override
@@ -78,7 +83,7 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
     }
 
     @Override
-    public WidgetPresentation getPresentation() {
+    public StatusBarWidget.WidgetPresentation getPresentation() {
         return this;
     }
 
@@ -118,8 +123,8 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
 
         Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
         if (focusOwner == null) {
-            IdeFocusManager focusManager = IdeFocusManager.getInstance(project);
-            IdeFrame frame = focusManager.getLastFocusedFrame();
+            IdeFocusManager focusManager = ApplicationIdeFocusManager.getInstance().getInstanceForProject(project);
+            FocusableFrame frame = focusManager.getLastFocusedFrame();
             if (frame != null) {
                 focusOwner = focusManager.getLastFocusedFor(frame);
             }

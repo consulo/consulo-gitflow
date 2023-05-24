@@ -1,7 +1,7 @@
 package gitflow;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
+import consulo.disposer.Disposer;
+import consulo.project.Project;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 

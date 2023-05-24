@@ -1,10 +1,14 @@
 package gitflow;
 
-import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
-import com.intellij.tasks.Task;
-import com.intellij.util.xmlb.XmlSerializerUtil;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.component.persist.PersistentStateComponent;
+import consulo.component.persist.State;
+import consulo.component.persist.Storage;
+import consulo.task.Task;
+import consulo.util.xml.serializer.XmlSerializerUtil;
+import jakarta.inject.Singleton;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -19,6 +23,9 @@ import java.util.HashMap;
         @Storage(
                 file = "$APP_CONFIG$/GitflowState.xml")
 })
+@ServiceAPI(ComponentScope.APPLICATION)
+@ServiceImpl
+@Singleton
 public class GitflowState implements PersistentStateComponent<GitflowState> {
 
     private HashMap<String, String> taskBranches;
@@ -49,12 +56,12 @@ public class GitflowState implements PersistentStateComponent<GitflowState> {
 
     }
 
-    public String getTaskBranch(Task task){
+    public String getTaskBranch(Task task) {
         return taskBranches.get(task.getId());
     }
 
 
-    public void setTaskBranch(Task task, String branchName){
+    public void setTaskBranch(Task task, String branchName) {
         taskBranches.put(task.getId(), branchName);
     }
 }

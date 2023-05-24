@@ -1,10 +1,10 @@
 package gitflow.ui;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.ValidationInfo;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.ui.CollectionComboBoxModel;
+import consulo.project.Project;
+import consulo.ui.ex.awt.CollectionComboBoxModel;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.ui.ex.awt.ValidationInfo;
+import consulo.util.lang.StringUtil;
 import gitflow.GitflowInitOptions;
 import org.jetbrains.annotations.Nullable;
 

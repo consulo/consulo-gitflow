@@ -1,9 +1,9 @@
 package gitflow;
 
-import com.intellij.execution.ExecutionException;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.process.ExecutionException;
+import consulo.project.Project;
 import consulo.util.dataholder.Key;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
 import git4idea.util.GitVcsConsoleWriter;
@@ -22,8 +22,9 @@ public class GitInitLineHandler extends GitLineHandler {
     GitflowInitOptions _initOptions;
 
     public GitInitLineHandler(GitflowInitOptions initOptions,
-            @NotNull Project project, @NotNull VirtualFile vcsRoot,
-            @NotNull GitCommand command) {
+                              @NotNull Project project,
+                              @NotNull VirtualFile vcsRoot,
+                              @NotNull GitCommand command) {
         super(project, vcsRoot, command);
         consoleWriter = GitVcsConsoleWriter.getInstance(project);
         _initOptions = initOptions;

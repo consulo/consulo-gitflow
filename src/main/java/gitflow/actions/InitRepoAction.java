@@ -1,11 +1,12 @@
 package gitflow.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.progress.Task;
+import consulo.ui.ex.action.AnActionEvent;
 import consulo.util.dataholder.Key;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
+import git4idea.repo.GitRepositoryChangeListener;
 import gitflow.GitflowBranchUtil;
 import gitflow.GitflowBranchUtilManager;
 import gitflow.GitflowInitOptions;
@@ -65,13 +66,13 @@ public class InitRepoAction extends GitflowAction {
 
                     if (result.success()) {
                         String successMessage = getSuccessMessage();
-                        NotifyUtil.notifySuccess(myProject, "", successMessage);
+                        NotifyUtil.notifySuccess((consulo.project.Project) myProject, "", successMessage);
                     } else {
-                        NotifyUtil.notifyError(myProject, "Error", "Please have a look at the Version Control console for more details");
+                        NotifyUtil.notifyError((consulo.project.Project) myProject, "Error", "Please have a look at the Version Control console for more details");
                     }
 
                     //update the widget
-                    myProject.getMessageBus().syncPublisher(GitRepository.GIT_REPO_CHANGE).repositoryChanged(myRepo);
+                    myProject.getMessageBus().syncPublisher(GitRepositoryChangeListener.class).repositoryChanged(myRepo);
                     myRepo.update();
                 }
             }.queue();

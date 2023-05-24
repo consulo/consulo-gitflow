@@ -1,9 +1,8 @@
 package gitflow.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
-import git4idea.commands.Git;
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.progress.Task;
+import consulo.ui.ex.action.AnActionEvent;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
 import gitflow.GitflowConfigUtil;
@@ -34,9 +33,9 @@ public class PublishHotfixAction extends AbstractPublishAction {
 
                 if (result.success()) {
                     String publishedHotfixMessage = String.format("A new remote branch '%s%s' was created", branchUtil.getPrefixHotfix(), hotfixName);
-                    NotifyUtil.notifySuccess(myProject, hotfixName, publishedHotfixMessage);
+                    NotifyUtil.notifySuccess((consulo.project.Project) myProject, hotfixName, publishedHotfixMessage);
                 } else {
-                    NotifyUtil.notifyError(myProject, "Error", "Please have a look at the Version Control console for more details");
+                    NotifyUtil.notifyError((consulo.project.Project) myProject, "Error", "Please have a look at the Version Control console for more details");
                 }
 
                 myRepo.update();

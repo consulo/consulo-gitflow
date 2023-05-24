@@ -1,10 +1,10 @@
 package gitflow.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.progress.Task;
+import consulo.project.Project;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.awt.DialogWrapper;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
 import gitflow.ui.GitflowStartFeatureDialog;
@@ -33,7 +33,7 @@ public class StartFeatureAction extends AbstractStartAction {
         final String featureName = dialog.getNewBranchName();
         final String baseBranchName = dialog.getBaseBranchName();
 
-        this.runAction(e.getProject(), baseBranchName, featureName, null);
+        this.runAction(e.getData(Project.KEY), baseBranchName, featureName, null);
     }
 
     public void runAction(final Project project, final String baseBranchName, final String featureName, @Nullable final Runnable callInAwtLater){

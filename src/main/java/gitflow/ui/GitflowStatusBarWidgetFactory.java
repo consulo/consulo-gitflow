@@ -1,10 +1,10 @@
 package gitflow.ui;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
-import com.intellij.openapi.wm.StatusBar;
-import com.intellij.openapi.wm.StatusBarWidget;
-import com.intellij.openapi.wm.StatusBarWidgetFactory;
+import consulo.disposer.Disposer;
+import consulo.project.Project;
+import consulo.project.ui.wm.StatusBar;
+import consulo.project.ui.wm.StatusBarWidget;
+import consulo.project.ui.wm.StatusBarWidgetFactory;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,8 +31,7 @@ public class GitflowStatusBarWidgetFactory implements StatusBarWidgetFactory {
     @NotNull
     @Override
     public StatusBarWidget createWidget(@NotNull Project project) {
-        GitflowWidget gitflowWidget = new GitflowWidget(project);
-        return gitflowWidget;
+        return new GitflowWidget(project);
     }
 
     @Override

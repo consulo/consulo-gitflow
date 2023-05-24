@@ -1,14 +1,13 @@
 package gitflow;
 
-import com.intellij.openapi.Disposable;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.ProjectLevelVcsManager;
-import com.intellij.openapi.vcs.VcsListener;
-import com.intellij.openapi.vcs.VcsRoot;
-import com.intellij.openapi.wm.StatusBar;
-import com.intellij.openapi.wm.StatusBarWidget;
-import com.intellij.openapi.wm.WindowManager;
-import com.intellij.util.messages.MessageBus;
+import consulo.component.messagebus.MessageBus;
+import consulo.disposer.Disposable;
+import consulo.project.Project;
+import consulo.project.ui.wm.StatusBar;
+import consulo.project.ui.wm.WindowManager;
+import consulo.versionControlSystem.ProjectLevelVcsManager;
+import consulo.versionControlSystem.VcsListener;
+import consulo.versionControlSystem.root.VcsRoot;
 import git4idea.GitVcs;
 import gitflow.ui.GitflowWidget;
 

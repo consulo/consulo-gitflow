@@ -1,6 +1,8 @@
 package gitflow;
 
-import com.intellij.openapi.project.Project;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.project.Project;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandlerListener;
@@ -12,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * @author Opher Vishnia / opherv.com / opherv@gmail.com
  */
+@ServiceAPI(ComponentScope.APPLICATION)
 public interface Gitflow extends Git {
 
     GitCommandResult initRepo(@NotNull GitRepository repository,

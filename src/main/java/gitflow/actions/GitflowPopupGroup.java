@@ -1,8 +1,8 @@
 package gitflow.actions;
 
-import com.intellij.openapi.actionSystem.ActionGroup;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.project.Project;
+import consulo.project.Project;
+import consulo.ui.ex.action.ActionGroup;
+import consulo.ui.ex.action.DefaultActionGroup;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;

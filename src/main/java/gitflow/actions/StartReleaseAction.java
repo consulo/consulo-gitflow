@@ -1,9 +1,9 @@
 package gitflow.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.ui.Messages;
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.progress.Task;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.awt.Messages;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
 import git4idea.validators.GitNewBranchNameValidator;

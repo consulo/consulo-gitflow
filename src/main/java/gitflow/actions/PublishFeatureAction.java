@@ -1,8 +1,8 @@
 package gitflow.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.progress.Task;
+import consulo.ui.ex.action.AnActionEvent;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
 import gitflow.GitflowConfigUtil;
@@ -10,11 +10,11 @@ import gitflow.ui.NotifyUtil;
 import org.jetbrains.annotations.NotNull;
 
 public class PublishFeatureAction extends AbstractPublishAction {
-    PublishFeatureAction(){
+    PublishFeatureAction() {
         super("Publish Feature", BranchType.Feature);
     }
 
-    PublishFeatureAction(GitRepository repo){
+    PublishFeatureAction(GitRepository repo) {
         super(repo, "Publish Feature", BranchType.Feature);
     }
 
@@ -23,12 +23,12 @@ public class PublishFeatureAction extends AbstractPublishAction {
         super.actionPerformed(anActionEvent);
 
         GitflowConfigUtil gitflowConfigUtil = GitflowConfigUtil.getInstance(myProject, myRepo);
-        final String featureName= gitflowConfigUtil.getFeatureNameFromBranch(branchUtil.getCurrentBranchName());
+        final String featureName = gitflowConfigUtil.getFeatureNameFromBranch(branchUtil.getCurrentBranchName());
 
-        new Task.Backgroundable(myProject,"Publishing feature "+featureName,false){
+        new Task.Backgroundable(myProject, "Publishing feature " + featureName, false) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
-                GitCommandResult result = myGitflow.publishFeature(myRepo, featureName,new GitflowErrorsListener(myProject));
+                GitCommandResult result = myGitflow.publishFeature(myRepo, featureName, new GitflowErrorsListener(myProject));
 
                 if (result.success()) {
                     String publishedFeatureMessage = String.format("A new remote branch '%s%s' was created", branchUtil.getPrefixFeature(), featureName);

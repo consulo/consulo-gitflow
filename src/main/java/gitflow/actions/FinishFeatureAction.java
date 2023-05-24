@@ -1,9 +1,9 @@
 package gitflow.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.progress.Task;
+import consulo.project.Project;
+import consulo.ui.ex.action.AnActionEvent;
 import git4idea.branch.GitBranchUtil;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
@@ -69,13 +69,13 @@ public class FinishFeatureAction extends AbstractBranchAction {
 
                 if (result.success()) {
                     String finishedFeatureMessage = String.format("The feature branch '%s%s' was merged into '%s'", branchUtil.getPrefixFeature(), featureName, baseBranch);
-                    NotifyUtil.notifySuccess(myProject, featureName, finishedFeatureMessage);
+                    NotifyUtil.notifySuccess((Project) myProject, featureName, finishedFeatureMessage);
                 }
                 else if(errorLineHandler.hasMergeError){
                     // (merge errors are handled in the onSuccess handler)
                 }
                 else {
-                    NotifyUtil.notifyError(myProject, "Error", "Please have a look at the Version Control console for more details");
+                    NotifyUtil.notifyError((Project) myProject, "Error", "Please have a look at the Version Control console for more details");
                 }
 
                 myRepo.update();

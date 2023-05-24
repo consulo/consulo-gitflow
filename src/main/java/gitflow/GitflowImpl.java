@@ -1,9 +1,11 @@
 package gitflow;
 
-import com.intellij.openapi.project.Project;
+import consulo.annotation.component.ServiceImpl;
+import consulo.project.Project;
 import git4idea.commands.*;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
+import jakarta.inject.Singleton;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,7 +18,8 @@ import java.util.HashMap;
 /**
  * @author Opher Vishnia / opherv.com / opherv@gmail.com
  */
-
+@ServiceImpl
+@Singleton
 public class GitflowImpl extends GitImpl implements Gitflow {
 
     //we must use reflection to add this command, since the git4idea implementation doesn't expose it

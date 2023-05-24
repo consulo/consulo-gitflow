@@ -1,12 +1,12 @@
 package gitflow.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.project.DumbAwareAction;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vfs.VirtualFileManager;
+import consulo.ide.ServiceManager;
+import consulo.project.Project;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.DumbAwareAction;
+import consulo.ui.ex.awt.Messages;
+import consulo.versionControlSystem.VcsException;
+import consulo.virtualFileSystem.VirtualFileManager;
 import git4idea.branch.GitBranchUtil;
 import git4idea.merge.GitMerger;
 import git4idea.repo.GitRepository;

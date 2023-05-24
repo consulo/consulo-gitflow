@@ -1,15 +1,15 @@
 package gitflow.actions;
 
-import com.intellij.openapi.project.Project;
+import consulo.component.ComponentManager;
 import consulo.util.dataholder.Key;
 import gitflow.ui.NotifyUtil;
 
-public class GitflowErrorsListener extends GitflowLineHandler{
+public class GitflowErrorsListener extends GitflowLineHandler {
 
-    boolean hasMergeError=false;
+    boolean hasMergeError = false;
 
-    GitflowErrorsListener(Project project){
-        myProject=project;
+    GitflowErrorsListener(ComponentManager project) {
+        myProject = project;
     }
 
     @Override
@@ -20,8 +20,8 @@ public class GitflowErrorsListener extends GitflowLineHandler{
         if (line.contains("Not a gitflow-enabled repo yet")) {
             NotifyUtil.notifyError(myProject, "Error", "Not a gitflow-enabled repo yet. Please init git flow");
         }
-        if (line.contains("There were merge conflicts")){
-            hasMergeError=true;
+        if (line.contains("There were merge conflicts")) {
+            hasMergeError = true;
         }
     }
 
