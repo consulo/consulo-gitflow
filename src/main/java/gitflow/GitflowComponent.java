@@ -11,6 +11,8 @@ import consulo.versionControlSystem.root.VcsRoot;
 import git4idea.GitVcs;
 import gitflow.ui.GitflowWidget;
 
+import java.util.Optional;
+
 
 /**
  * @author Opher Vishnia / opherv.com / opherv@gmail.com
@@ -31,7 +33,6 @@ public class GitflowComponent implements VcsListener, Disposable {
 
     @Override
     public void dispose() {
-        // TODO: insert component disposal logic here
     }
 
     @Override
@@ -40,12 +41,8 @@ public class GitflowComponent implements VcsListener, Disposable {
         if (vcsRoots.length > 0 && vcsRoots[0].getVcs() instanceof GitVcs) {
 
             StatusBar statusBar = WindowManager.getInstance().getStatusBar(myProject);
-            GitflowWidget widget = (GitflowWidget) statusBar.getWidget(GitflowWidget.class.getName());
-            if (widget != null) {
-                widget.updateAsync();
-            } else {
-                throw new NullPointerException("widget");
-            }
+            Optional<GitflowWidget> optional = statusBar.findWidget(it -> it instanceof GitflowWidget);
+            optional.ifPresent(GitflowWidget::updateAsync);
         }
     }
 }

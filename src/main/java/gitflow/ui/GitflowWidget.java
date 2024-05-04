@@ -29,6 +29,7 @@ import consulo.ide.impl.idea.ui.popup.PopupFactoryImpl;
 import consulo.project.Project;
 import consulo.project.ui.wm.StatusBar;
 import consulo.project.ui.wm.StatusBarWidget;
+import consulo.project.ui.wm.StatusBarWidgetFactory;
 import consulo.project.ui.wm.WindowManager;
 import consulo.ui.ex.RelativePoint;
 import consulo.ui.ex.awt.Messages;
@@ -50,9 +51,11 @@ import gitflow.actions.GitflowPopupGroup;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -66,21 +69,15 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
 
     private GitflowPopupGroup popupGroup;
 
-    public GitflowWidget(@NotNull Project project) {
-        super(project);
+    public GitflowWidget(@NotNull Project project, @Nonnull StatusBarWidgetFactory factory) {
+        super(project, factory);
         
         project.getMessageBus().connect().subscribe(GitRepositoryChangeListener.class, this);
     }
 
     @Override
     public StatusBarWidget copy() {
-        return new GitBranchWidget(getProject());
-    }
-
-    @NotNull
-    @Override
-    public String ID() {
-        return getWidgetID();
+        return new GitBranchWidget(getProject(), myFactory);
     }
 
     @Override
@@ -232,11 +229,6 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
         return text;
     }
 
-    @NotNull
-    private static String getWidgetID() {
-        return GitflowWidget.class.getName();
-    }
-
     /**
      * This method looks up the widget instance for a specific project
      *
@@ -249,9 +241,8 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
             StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
 
             if (statusBar != null) {
-                StatusBarWidget possibleWidget = statusBar.getWidget(getWidgetID());
-                if (possibleWidget instanceof GitflowWidget)
-                    return (GitflowWidget) possibleWidget;
+                Optional<GitflowWidget> possibleWidget = statusBar.findWidget(widget -> widget instanceof GitflowWidget);
+                return possibleWidget.orElse(null);
             }
         }
 
