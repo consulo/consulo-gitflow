@@ -23,15 +23,15 @@ import consulo.dataContext.DataContext;
 import consulo.dataContext.DataManager;
 import consulo.fileEditor.FileEditorManager;
 import consulo.fileEditor.event.FileEditorManagerEvent;
-import consulo.ide.impl.idea.ide.BrowserUtil;
-import consulo.ide.impl.idea.openapi.ui.MessageDialogBuilder;
 import consulo.ide.impl.idea.ui.popup.PopupFactoryImpl;
+import consulo.platform.Platform;
 import consulo.project.Project;
 import consulo.project.ui.wm.StatusBar;
 import consulo.project.ui.wm.StatusBarWidget;
 import consulo.project.ui.wm.StatusBarWidgetFactory;
 import consulo.project.ui.wm.WindowManager;
 import consulo.ui.ex.RelativePoint;
+import consulo.ui.ex.awt.MessageDialogBuilder;
 import consulo.ui.ex.awt.Messages;
 import consulo.ui.ex.popup.ListPopup;
 import consulo.versionControlSystem.ProjectLevelVcsManager;
@@ -164,10 +164,10 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
                 popup.show(new RelativePoint(mouseEvent.getComponent(), at));
             } else {
                 MessageDialogBuilder.YesNo builder = MessageDialogBuilder.yesNo("Unsupported Git Flow version", "The Git Flow CLI version installed isn't supported by the Git Flow Integration plugin")
-                        .yesText("More information (open browser)")
-                        .noText("no");
+                                                                         .yesText("More information (open browser)")
+                                                                         .noText("no");
                 if (builder.show() == Messages.OK) {
-                    BrowserUtil.browse("https://github.com/OpherV/gitflow4idea/blob/develop/GITFLOW_VERSION.md");
+                    Platform.current().openInBrowser("https://github.com/OpherV/gitflow4idea/blob/develop/GITFLOW_VERSION.md");
                 }
             }
         };
