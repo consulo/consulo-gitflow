@@ -48,10 +48,10 @@ import gitflow.GitflowBranchUtilManager;
 import gitflow.GitflowVersionTester;
 import gitflow.IDEAUtils;
 import gitflow.actions.GitflowPopupGroup;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
