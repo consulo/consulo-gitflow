@@ -5,6 +5,7 @@ import consulo.component.PropertiesComponent;
 import consulo.configurable.ConfigurationException;
 import consulo.configurable.ProjectConfigurable;
 import consulo.configurable.StandardConfigurableIds;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.project.ProjectPropertiesComponent;
 import gitflow.ui.GitflowOptionsForm;
@@ -51,8 +52,8 @@ public class GitflowConfigurable implements ProjectConfigurable {
     }
 
     @Override
-    public String getDisplayName() {
-        return "Gitflow";
+    public LocalizeValue getDisplayName() {
+        return LocalizeValue.localizeTODO("Gitflow");
     }
 
     @Nullable
