@@ -7,7 +7,6 @@ open module consulo.gitflow {
     requires com.intellij.git;
 
     // TODO remove
-    requires consulo.ide.impl;
     requires forms.rt;
     requires java.desktop;
 }

@@ -1,12 +1,12 @@
 package gitflow.ui;
 
 import consulo.annotation.component.ExtensionImpl;
-import consulo.ide.impl.idea.tasks.actions.vcs.VcsTaskDialogPanelProvider;
 import consulo.project.Project;
 import consulo.task.LocalTask;
 import consulo.task.Task;
 import consulo.task.TaskManager;
 import consulo.task.ui.TaskDialogPanel;
+import consulo.task.ui.TaskDialogPanelProvider;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
 import gitflow.GitflowBranchUtil;
@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @ExtensionImpl
-public class GitflowTaskDialogPanelProvider extends VcsTaskDialogPanelProvider {
+public class GitflowTaskDialogPanelProvider extends TaskDialogPanelProvider {
 
     @Nullable
     @Override

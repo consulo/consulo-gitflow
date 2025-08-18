@@ -23,7 +23,6 @@ import consulo.dataContext.DataContext;
 import consulo.dataContext.DataManager;
 import consulo.fileEditor.FileEditorManager;
 import consulo.fileEditor.event.FileEditorManagerEvent;
-import consulo.ide.impl.idea.ui.popup.PopupFactoryImpl;
 import consulo.platform.Platform;
 import consulo.project.Project;
 import consulo.project.ui.wm.StatusBar;
@@ -33,6 +32,7 @@ import consulo.project.ui.wm.WindowManager;
 import consulo.ui.ex.RelativePoint;
 import consulo.ui.ex.awt.MessageDialogBuilder;
 import consulo.ui.ex.awt.Messages;
+import consulo.ui.ex.popup.JBPopupFactory;
 import consulo.ui.ex.popup.ListPopup;
 import consulo.versionControlSystem.ProjectLevelVcsManager;
 import consulo.versionControlSystem.root.VcsRoot;
@@ -71,7 +71,7 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
 
     public GitflowWidget(@NotNull Project project, @Nonnull StatusBarWidgetFactory factory) {
         super(project, factory);
-        
+
         project.getMessageBus().connect().subscribe(GitRepositoryChangeListener.class, this);
     }
 
@@ -107,7 +107,7 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
     }
 
     @Nullable
-    @ Override
+    @Override
     public ListPopup getPopupStep() {
         Project project = IDEAUtils.getActiveProject();
 
@@ -129,10 +129,7 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
         }
 
         DataContext dataContext = DataManager.getInstance().getDataContext(focusOwner);
-        ListPopup listPopup = new PopupFactoryImpl.ActionGroupPopup("Gitflow Actions", popupGroup.getActionGroup(), dataContext, false, false, false, true, null, -1,
-                null, null);
-
-        return listPopup;
+        return JBPopupFactory.getInstance().createActionGroupPopup("Gitflow Actions", popupGroup.getActionGroup(), dataContext, false, false, true, null, -1, null);
     }
 
     @NotNull
@@ -158,14 +155,17 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
         return mouseEvent -> {
             if (getIsSupportedVersion()) {
                 final ListPopup popup = getPopupStep();
-                if (popup == null) return;
+                if (popup == null) {
+                    return;
+                }
                 final Dimension dimension = popup.getContent().getPreferredSize();
                 final Point at = new Point(0, -dimension.height);
                 popup.show(new RelativePoint(mouseEvent.getComponent(), at));
-            } else {
+            }
+            else {
                 MessageDialogBuilder.YesNo builder = MessageDialogBuilder.yesNo("Unsupported Git Flow version", "The Git Flow CLI version installed isn't supported by the Git Flow Integration plugin")
-                                                                         .yesText("More information (open browser)")
-                                                                         .noText("no");
+                    .yesText("More information (open browser)")
+                    .noText("no");
                 if (builder.show() == Messages.OK) {
                     Platform.current().openInBrowser("https://github.com/OpherV/gitflow4idea/blob/develop/GITFLOW_VERSION.md");
                 }
@@ -180,7 +180,7 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
             public void run() {
                 update();
 
-                if (myStatusBar != null){
+                if (myStatusBar != null) {
                     myStatusBar.updateWidget(ID());
                 }
             }
@@ -258,8 +258,9 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
     public void showPopupInCenterOf(@NotNull JFrame frame) {
         update();
         ListPopup popupStep = getPopupStep();
-        if (popupStep != null)
+        if (popupStep != null) {
             popupStep.showInCenterOf(frame);
+        }
     }
 
     @NotNull
@@ -273,16 +274,16 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
         return 0;
     }
 
-    public boolean getIsSupportedVersion(){
+    public boolean getIsSupportedVersion() {
         GitflowVersionTester versionTester = GitflowVersionTester.forProject(myProject);
         return versionTester.hasVersionBeenTested() && versionTester.isSupportedVersion();
     }
 
-    public boolean getHasVersionBeenTested(){
+    public boolean getHasVersionBeenTested() {
         return GitflowVersionTester.forProject(myProject).hasVersionBeenTested();
     }
 
-    private void initVersionCheck(){
+    private void initVersionCheck() {
 
         // init the gitflow cli version check in a new thread and not on the EDT
         String version = GitflowVersionTester.forProject(myProject).getVersion();
