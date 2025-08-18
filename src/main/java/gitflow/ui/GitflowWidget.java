@@ -15,6 +15,7 @@
  */
 package gitflow.ui;
 
+import consulo.application.Application;
 import consulo.application.ApplicationManager;
 import consulo.application.ui.wm.ApplicationIdeFocusManager;
 import consulo.application.ui.wm.FocusableFrame;
@@ -298,7 +299,7 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
 
                 }
             };
-            new Thread(runnable).start();
+            Application.get().executeOnPooledThread(runnable);
         }
     }
 
