@@ -2,10 +2,10 @@ package gitflow.actions;
 
 import consulo.fileEditor.event.FileEditorManagerEvent;
 import consulo.fileEditor.event.FileEditorManagerListener;
-import consulo.ide.impl.idea.dvcs.ui.PopupElementWithAdditionalInfo;
 import consulo.project.Project;
 import consulo.ui.ex.action.*;
-import consulo.versionControlSystem.distributed.action.BranchActionGroup;
+import consulo.versionControlSystem.distributed.branch.BranchActionGroup;
+import consulo.versionControlSystem.distributed.branch.PopupElementWithAdditionalInfo;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
