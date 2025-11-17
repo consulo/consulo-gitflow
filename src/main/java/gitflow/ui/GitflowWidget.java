@@ -16,7 +16,6 @@
 package gitflow.ui;
 
 import consulo.application.Application;
-import consulo.application.ApplicationManager;
 import consulo.application.ui.wm.ApplicationIdeFocusManager;
 import consulo.application.ui.wm.FocusableFrame;
 import consulo.application.ui.wm.IdeFocusManager;
@@ -24,12 +23,14 @@ import consulo.dataContext.DataContext;
 import consulo.dataContext.DataManager;
 import consulo.fileEditor.FileEditorManager;
 import consulo.fileEditor.event.FileEditorManagerEvent;
+import consulo.localize.LocalizeValue;
 import consulo.platform.Platform;
 import consulo.project.Project;
 import consulo.project.ui.wm.StatusBar;
 import consulo.project.ui.wm.StatusBarWidget;
 import consulo.project.ui.wm.StatusBarWidgetFactory;
 import consulo.project.ui.wm.WindowManager;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.RelativePoint;
 import consulo.ui.ex.awt.MessageDialogBuilder;
 import consulo.ui.ex.awt.Messages;
@@ -50,8 +51,7 @@ import gitflow.GitflowVersionTester;
 import gitflow.IDEAUtils;
 import gitflow.actions.GitflowPopupGroup;
 import jakarta.annotation.Nonnull;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -66,11 +66,12 @@ import java.util.function.Consumer;
  */
 public class GitflowWidget extends GitBranchWidget implements GitRepositoryChangeListener, StatusBarWidget.TextPresentation {
     private volatile String myText = "";
-    private volatile String myTooltip = "";
+    @Nonnull
+    private volatile LocalizeValue myTooltip = LocalizeValue.empty();
 
     private GitflowPopupGroup popupGroup;
 
-    public GitflowWidget(@NotNull Project project, @Nonnull StatusBarWidgetFactory factory) {
+    public GitflowWidget(@Nonnull Project project, @Nonnull StatusBarWidgetFactory factory) {
         super(project, factory);
 
         project.getMessageBus().connect().subscribe(GitRepositoryChangeListener.class, this);
@@ -87,22 +88,22 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
     }
 
     @Override
-    public void selectionChanged(FileEditorManagerEvent event) {
+    public void selectionChanged(@Nonnull FileEditorManagerEvent event) {
         //updateAsync();
     }
 
     @Override
-    public void fileOpened(FileEditorManager source, VirtualFile file) {
+    public void fileOpened(@Nonnull FileEditorManager source, @Nonnull VirtualFile file) {
         //updateAsync();
     }
 
     @Override
-    public void fileClosed(FileEditorManager source, VirtualFile file) {
+    public void fileClosed(@Nonnull FileEditorManager source, @Nonnull VirtualFile file) {
         //updateAsync();
     }
 
     @Override
-    public void repositoryChanged(@NotNull GitRepository repository) {
+    public void repositoryChanged(@Nonnull GitRepository repository) {
         initVersionCheck();
         updateAsync();
     }
@@ -130,11 +131,13 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
         }
 
         DataContext dataContext = DataManager.getInstance().getDataContext(focusOwner);
-        return JBPopupFactory.getInstance().createActionGroupPopup("Gitflow Actions", popupGroup.getActionGroup(), dataContext, false, false, true, null, -1, null);
+        return JBPopupFactory.getInstance()
+            .createActionGroupPopup("Gitflow Actions", popupGroup.getActionGroup(), dataContext, false, false, true, null, -1, null);
     }
 
-    @NotNull
+    @Nonnull
     @Override
+    @RequiredUIAccess
     public String getSelectedValue() {
         if (getHasVersionBeenTested() && !getIsSupportedVersion()) {
             return "Unsupported Git Flow Version";
@@ -142,29 +145,33 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
         return myText;
     }
 
+    @Nonnull
     @Override
-    public String getTooltipText() {
+    public LocalizeValue getTooltipText() {
         if (!getIsSupportedVersion()) {
-            return "Click for details";
+            return LocalizeValue.localizeTODO("Click for details");
         }
         return myTooltip;
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public Consumer<MouseEvent> getClickConsumer() {
         return mouseEvent -> {
             if (getIsSupportedVersion()) {
-                final ListPopup popup = getPopupStep();
+                ListPopup popup = getPopupStep();
                 if (popup == null) {
                     return;
                 }
-                final Dimension dimension = popup.getContent().getPreferredSize();
-                final Point at = new Point(0, -dimension.height);
+                Dimension dimension = popup.getContent().getPreferredSize();
+                Point at = new Point(0, -dimension.height);
                 popup.show(new RelativePoint(mouseEvent.getComponent(), at));
             }
             else {
-                MessageDialogBuilder.YesNo builder = MessageDialogBuilder.yesNo("Unsupported Git Flow version", "The Git Flow CLI version installed isn't supported by the Git Flow Integration plugin")
+                MessageDialogBuilder.YesNo builder = MessageDialogBuilder.yesNo(
+                        "Unsupported Git Flow version",
+                        "The Git Flow CLI version installed isn't supported by the Git Flow Integration plugin"
+                    )
                     .yesText("More information (open browser)")
                     .noText("no");
                 if (builder.show() == Messages.OK) {
@@ -176,14 +183,11 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
     }
 
     public void updateAsync() {
-        ApplicationManager.getApplication().invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                update();
+        Application.get().invokeLater(() -> {
+            update();
 
-                if (myStatusBar != null) {
-                    myStatusBar.updateWidget(ID());
-                }
+            if (myStatusBar != null) {
+                myStatusBar.updateWidget(ID());
             }
         });
     }
@@ -194,17 +198,11 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
         //repopulate the branchUtil
         GitflowBranchUtilManager.update(project);
 
-        if (project == null) {
-            emptyTextAndTooltip();
-            return;
-        }
-
         GitRepository repo = GitBranchUtil.getCurrentRepository(project);
         if (repo == null) { // the file is not under version control => display nothing
             emptyTextAndTooltip();
             return;
         }
-
 
         //No advanced features in the status-bar widget
         popupGroup = new GitflowPopupGroup(project, false);
@@ -218,16 +216,16 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
 
     private void emptyTextAndTooltip() {
         myText = "";
-        myTooltip = "";
+        myTooltip = LocalizeValue.empty();
     }
 
-    @NotNull
-    private static String getDisplayableBranchTooltip(GitRepository repo) {
+    @Nonnull
+    private static LocalizeValue getDisplayableBranchTooltip(GitRepository repo) {
         String text = GitBranchUtil.getDisplayableBranchText(repo);
         if (!GitUtil.justOneGitRepository(repo.getProject())) {
-            return text + "\n" + "Root: " + repo.getRoot().getName();
+            return LocalizeValue.localizeTODO(text + "\n" + "Root: " + repo.getRoot().getName());
         }
-        return text;
+        return LocalizeValue.localizeTODO(text);
     }
 
     /**
@@ -256,7 +254,7 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
      *
      * @param frame The frame that will be used for display
      */
-    public void showPopupInCenterOf(@NotNull JFrame frame) {
+    public void showPopupInCenterOf(@Nonnull JFrame frame) {
         update();
         ListPopup popupStep = getPopupStep();
         if (popupStep != null) {
@@ -264,8 +262,9 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
         }
     }
 
-    @NotNull
+    @Nonnull
     @Override
+    @RequiredUIAccess
     public String getText() {
         return getSelectedValue();
     }
@@ -285,22 +284,16 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
     }
 
     private void initVersionCheck() {
-
         // init the gitflow cli version check in a new thread and not on the EDT
         String version = GitflowVersionTester.forProject(myProject).getVersion();
         if (version == null) {
-            final Runnable runnable = new Runnable() {
-                @Override
-                public void run() {
-                    VcsRoot[] vcsRoots = ProjectLevelVcsManager.getInstance(myProject).getAllVcsRoots();
-                    if (vcsRoots.length > 0 && vcsRoots[0].getVcs() instanceof GitVcs) {
-                        GitflowVersionTester.forProject(myProject).init();
-                    }
-
+            Runnable runnable = () -> {
+                VcsRoot[] vcsRoots = ProjectLevelVcsManager.getInstance(myProject).getAllVcsRoots();
+                if (vcsRoots.length > 0 && vcsRoots[0].getVcs() instanceof GitVcs) {
+                    GitflowVersionTester.forProject(myProject).init();
                 }
             };
             Application.get().executeOnPooledThread(runnable);
         }
     }
-
 }
