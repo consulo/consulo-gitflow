@@ -8,35 +8,33 @@ import consulo.component.persist.State;
 import consulo.component.persist.Storage;
 import consulo.task.Task;
 import consulo.util.xml.serializer.XmlSerializerUtil;
+import jakarta.annotation.Nullable;
 import jakarta.inject.Singleton;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Persistent state for Gitflow component
- * Created by opherv on 8/17/16.
+ *
+ * @author opherv
+ * @since 2016-08-17
  */
-
 @State(
-        name = "GitflowState", storages = {
-        @Storage(
-                file = "$APP_CONFIG$/GitflowState.xml")
+    name = "GitflowState", storages = {
+    @Storage(file = "$APP_CONFIG$/GitflowState.xml")
 })
 @ServiceAPI(ComponentScope.APPLICATION)
 @ServiceImpl
 @Singleton
 public class GitflowState implements PersistentStateComponent<GitflowState> {
-
-    private HashMap<String, String> taskBranches;
-
+    private Map<String, String> taskBranches;
 
     public GitflowState() {
-        taskBranches = new HashMap<String, String>();
+        taskBranches = new HashMap<>();
     }
 
-
-    public HashMap<String, String> getTaskBranches() {
+    public Map<String, String> getTaskBranches() {
         return taskBranches;
     }
 
@@ -53,13 +51,11 @@ public class GitflowState implements PersistentStateComponent<GitflowState> {
     @Override
     public void loadState(GitflowState state) {
         XmlSerializerUtil.copyBean(state, this);
-
     }
 
     public String getTaskBranch(Task task) {
         return taskBranches.get(task.getId());
     }
-
 
     public void setTaskBranch(Task task, String branchName) {
         taskBranches.put(task.getId(), branchName);

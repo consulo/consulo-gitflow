@@ -2,12 +2,13 @@ package gitflow.actions;
 
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
 import gitflow.GitflowConfigUtil;
 import gitflow.ui.NotifyUtil;
-import org.jetbrains.annotations.NotNull;
+import jakarta.annotation.Nonnull;
 
 public class PublishFeatureAction extends AbstractPublishAction {
     PublishFeatureAction() {
@@ -19,19 +20,21 @@ public class PublishFeatureAction extends AbstractPublishAction {
     }
 
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent) {
-        super.actionPerformed(anActionEvent);
+    @RequiredUIAccess
+    public void actionPerformed(@Nonnull AnActionEvent e) {
+        super.actionPerformed(e);
 
         GitflowConfigUtil gitflowConfigUtil = GitflowConfigUtil.getInstance(myProject, myRepo);
         final String featureName = gitflowConfigUtil.getFeatureNameFromBranch(branchUtil.getCurrentBranchName());
 
         new Task.Backgroundable(myProject, "Publishing feature " + featureName, false) {
             @Override
-            public void run(@NotNull ProgressIndicator indicator) {
+            public void run(@Nonnull ProgressIndicator indicator) {
                 GitCommandResult result = myGitflow.publishFeature(myRepo, featureName, new GitflowErrorsListener(myProject));
 
                 if (result.success()) {
-                    String publishedFeatureMessage = String.format("A new remote branch '%s%s' was created", branchUtil.getPrefixFeature(), featureName);
+                    String publishedFeatureMessage =
+                        String.format("A new remote branch '%s%s' was created", branchUtil.getPrefixFeature(), featureName);
                     NotifyUtil.notifySuccess(myProject, featureName, publishedFeatureMessage);
                 }
                 else {
@@ -39,10 +42,7 @@ public class PublishFeatureAction extends AbstractPublishAction {
                 }
 
                 myRepo.update();
-
-
             }
         }.queue();
-
     }
 }

@@ -10,18 +10,14 @@ import git4idea.repo.GitRepository;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 /**
- *
- *
  * @author Opher Vishnia / opherv.com / opherv@gmail.com
  */
 public class GitflowBranchUtil {
-
-    Project myProject;
-    GitRepository myRepo;
+    final Project myProject;
+    final GitRepository myRepo;
 
     private String currentBranchName;
     private String branchnameMaster;
@@ -30,21 +26,21 @@ public class GitflowBranchUtil {
     private String prefixRelease;
     private String prefixHotfix;
     private String prefixBugfix;
-    private ArrayList<GitRemoteBranch> remoteBranches;
-    private ArrayList<String> remoteBranchNames;
-    private ArrayList<GitLocalBranch> localBranches;
-    private ArrayList<String> localBranchNames;
+    private List<GitRemoteBranch> remoteBranches;
+    private List<String> remoteBranchNames;
+    private List<GitLocalBranch> localBranches;
+    private List<String> localBranchNames;
 
-    public GitflowBranchUtil(Project project, GitRepository repo){
-        myProject=project;
+    public GitflowBranchUtil(Project project, GitRepository repo) {
+        myProject = project;
         myRepo = repo;
 
         if (repo != null) {
-           update();
+            update();
         }
     }
 
-    public void update(){
+    public void update() {
         currentBranchName = GitBranchUtil.getBranchNameOrRev(myRepo);
 
         GitflowConfigUtil gitflowConfigUtil = GitflowConfigUtil.getInstance(myProject, myRepo);
@@ -64,14 +60,14 @@ public class GitflowBranchUtil {
         return currentBranchName;
     }
 
-    public boolean hasGitflow(){
+    public boolean hasGitflow() {
         boolean hasGitflow = myRepo != null
-                       && getBranchnameMaster() != null
-                       && getBranchnameDevelop() != null
-                       && getPrefixFeature() != null
-                       && getPrefixRelease() != null
-                       && getPrefixHotfix() != null
-                       && getPrefixBugfix() != null;
+            && getBranchnameMaster() != null
+            && getBranchnameDevelop() != null
+            && getPrefixFeature() != null
+            && getPrefixRelease() != null
+            && getPrefixHotfix() != null
+            && getPrefixBugfix() != null;
 
         return hasGitflow;
     }
@@ -100,74 +96,68 @@ public class GitflowBranchUtil {
         return prefixBugfix;
     }
 
-    public boolean isCurrentBranchMaster(){
+    public boolean isCurrentBranchMaster() {
         return currentBranchName.startsWith(branchnameMaster);
     }
 
-    public boolean isCurrentBranchFeature(){
+    public boolean isCurrentBranchFeature() {
         return isBranchFeature(currentBranchName);
     }
 
-
-    public boolean isCurrentBranchRelease(){
+    public boolean isCurrentBranchRelease() {
         return currentBranchName.startsWith(prefixRelease);
     }
 
-    public boolean isCurrentBranchHotfix(){
+    public boolean isCurrentBranchHotfix() {
         return isBranchHotfix(currentBranchName);
     }
 
-    public boolean isCurrentBranchBugfix(){
+    public boolean isCurrentBranchBugfix() {
         return isBranchBugfix(currentBranchName);
     }
 
     //checks whether the current branch also exists on the remote
-    public boolean isCurrentBranchPublished(){
-        return getRemoteBranchesWithPrefix(currentBranchName).isEmpty()==false;
+    public boolean isCurrentBranchPublished() {
+        return !getRemoteBranchesWithPrefix(currentBranchName).isEmpty();
     }
 
-    public boolean isBranchFeature(String branchName){
+    public boolean isBranchFeature(String branchName) {
         return branchName.startsWith(prefixFeature);
     }
 
-    public boolean isBranchHotfix(String branchName){
+    public boolean isBranchHotfix(String branchName) {
         return branchName.startsWith(prefixHotfix);
     }
 
-    public boolean isBranchBugfix(String branchName){
+    public boolean isBranchBugfix(String branchName) {
         return branchName.startsWith(prefixBugfix);
     }
 
     private void initRemoteBranches() {
-        remoteBranches =
-                new ArrayList<GitRemoteBranch>(myRepo.getBranches().getRemoteBranches());
-        remoteBranchNames = new ArrayList<String>();
+        remoteBranches = new ArrayList<>(myRepo.getBranches().getRemoteBranches());
+        remoteBranchNames = new ArrayList<>();
 
-        for(Iterator<GitRemoteBranch> i = remoteBranches.iterator(); i.hasNext(); ) {
-            GitRemoteBranch branch = i.next();
+        for (GitRemoteBranch branch : remoteBranches) {
             remoteBranchNames.add(branch.getName());
         }
     }
 
-    private void initLocalBranchNames(){
-        localBranches =
-                new ArrayList<GitLocalBranch>(myRepo.getBranches().getLocalBranches());
-        localBranchNames = new ArrayList<String>();
+    private void initLocalBranchNames() {
+        localBranches = new ArrayList<>(myRepo.getBranches().getLocalBranches());
+        localBranchNames = new ArrayList<>();
 
-        for(Iterator<GitLocalBranch> i = localBranches.iterator(); i.hasNext(); ) {
-            GitLocalBranch branch = i.next();
+        for (GitLocalBranch branch : localBranches) {
             localBranchNames.add(branch.getName());
         }
     }
 
     //if no prefix specified, returns all remote branches
-    public ArrayList<String> getRemoteBranchesWithPrefix(String prefix){
-        ArrayList<String> remoteBranches = remoteBranchNames;
-        ArrayList<String> selectedBranches = new ArrayList<String>();
+    public List<String> getRemoteBranchesWithPrefix(String prefix) {
+        List<String> remoteBranches = remoteBranchNames;
+        List<String> selectedBranches = new ArrayList<>();
 
-        for(Iterator<String> i = remoteBranches.iterator(); i.hasNext(); ) {
-            String branch = i.next();
-            if (branch.contains(prefix)){
+        for (String branch : remoteBranches) {
+            if (branch.contains(prefix)) {
                 selectedBranches.add(branch);
             }
         }
@@ -175,13 +165,11 @@ public class GitflowBranchUtil {
         return selectedBranches;
     }
 
+    public List<String> filterBranchListByPrefix(Collection<String> inputBranches, String prefix) {
+        List<String> outputBranches = new ArrayList<>();
 
-    public ArrayList<String> filterBranchListByPrefix(Collection<String> inputBranches,String prefix){
-        ArrayList<String> outputBranches= new ArrayList<String>();
-
-        for(Iterator<String> i = inputBranches.iterator(); i.hasNext(); ) {
-            String branch = i.next();
-            if (branch.contains(prefix)){
+        for (String branch : inputBranches) {
+            if (branch.contains(prefix)) {
                 outputBranches.add(branch);
             }
         }
@@ -189,21 +177,20 @@ public class GitflowBranchUtil {
         return outputBranches;
     }
 
-    public ArrayList<String> getRemoteBranchNames(){
+    public List<String> getRemoteBranchNames() {
         return remoteBranchNames;
     }
 
-    public ArrayList<String> getLocalBranchNames() {
+    public List<String> getLocalBranchNames() {
         return localBranchNames;
     }
 
-    public GitRemote getRemoteByBranch(String branchName){
-        GitRemote remote=null;
+    public GitRemote getRemoteByBranch(String branchName) {
+        GitRemote remote = null;
 
-        for(Iterator<GitRemoteBranch> i = remoteBranches.iterator(); i.hasNext(); ) {
-            GitRemoteBranch branch = i.next();
-            if (branch.getName().equals(branchName)){
-                remote=branch.getRemote();
+        for (GitRemoteBranch branch : remoteBranches) {
+            if (branch.getName().equals(branchName)) {
+                remote = branch.getRemote();
                 break;
             }
         }
@@ -211,35 +198,30 @@ public class GitflowBranchUtil {
         return remote;
     }
 
-    public boolean areAllBranchesTracked(String prefix){
-
-
-        ArrayList<String> localBranches = filterBranchListByPrefix(getLocalBranchNames() , prefix) ;
+    public boolean areAllBranchesTracked(String prefix) {
+        List<String> localBranches = filterBranchListByPrefix(getLocalBranchNames(), prefix);
 
         //to avoid a vacuous truth value. That is, when no branches at all exist, they shouldn't be
         //considered as "all pulled"
-        if (localBranches.isEmpty()){
+        if (localBranches.isEmpty()) {
             return false;
         }
 
-        ArrayList<String> remoteBranches = getRemoteBranchNames();
+        List<String> remoteBranches = getRemoteBranchNames();
 
         //check that every local branch has a matching remote branch
-        for(Iterator<String> i = localBranches.iterator(); i.hasNext(); ) {
-            String localBranch = i.next();
+        for (String localBranch : localBranches) {
             boolean hasMatchingRemoteBranch = false;
 
-            for(Iterator<String> j = remoteBranches.iterator(); j.hasNext(); ) {
-                String remoteBranch = j.next();
-
-                if (remoteBranch.contains(localBranch)){
-                    hasMatchingRemoteBranch=true;
+            for (String remoteBranch : remoteBranches) {
+                if (remoteBranch.contains(localBranch)) {
+                    hasMatchingRemoteBranch = true;
                     break;
                 }
             }
 
             //at least one matching branch wasn't found
-            if (hasMatchingRemoteBranch==false){
+            if (!hasMatchingRemoteBranch) {
                 return false;
             }
         }
@@ -248,7 +230,7 @@ public class GitflowBranchUtil {
     }
 
     public ComboBoxModel createBranchComboModel(String defaultBranch) {
-        final List<String> branchList = this.getLocalBranchNames();
+        List<String> branchList = this.getLocalBranchNames();
         branchList.remove(defaultBranch);
 
         ComboEntry[] entries = new ComboEntry[branchList.size() + 1];
@@ -263,27 +245,30 @@ public class GitflowBranchUtil {
 
     /**
      * Strip a full branch name from its gitflow prefix
+     *
      * @param fullBranchName full name of the branch (e.g. 'feature/hello');
      * @return the branch name, prefix free (e.g. 'hello')
      */
     public String stripFullBranchName(String fullBranchName) {
-        if (fullBranchName.startsWith(prefixFeature)){
+        if (fullBranchName.startsWith(prefixFeature)) {
             return fullBranchName.substring(prefixFeature.length(), fullBranchName.length());
         }
-        else if (fullBranchName.startsWith(prefixHotfix)){
+        else if (fullBranchName.startsWith(prefixHotfix)) {
             return fullBranchName.substring(prefixHotfix.length(), fullBranchName.length());
-        } else if (fullBranchName.startsWith(prefixBugfix)){
+        }
+        else if (fullBranchName.startsWith(prefixBugfix)) {
             return fullBranchName.substring(prefixBugfix.length(), fullBranchName.length());
-        } else{
+        }
+        else {
             return null;
         }
-    };
+    }
 
     /**
-     * An entry for the branch selection dropdown/combo.
+     * An entry for the branch selection drop-down/combo.
      */
     public static class ComboEntry {
-        private String branchName, label;
+        final private String branchName, label;
 
         public ComboEntry(String branchName, String label) {
             this.branchName = branchName;

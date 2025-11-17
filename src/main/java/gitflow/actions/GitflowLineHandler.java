@@ -5,10 +5,11 @@ import consulo.util.dataholder.Key;
 import git4idea.commands.GitLineHandlerListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
 //generic line handler (should handle errors etc)
 public abstract class GitflowLineHandler implements GitLineHandlerListener {
-    ArrayList<String> myErrors = new ArrayList<String>();
+    final List<String> myErrors = new ArrayList<>();
     ComponentManager myProject;
 
     @Override

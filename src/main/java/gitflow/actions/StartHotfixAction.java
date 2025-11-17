@@ -3,18 +3,17 @@ package gitflow.actions;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.awt.DialogWrapper;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
 import gitflow.ui.GitflowStartHotfixDialog;
 import gitflow.ui.NotifyUtil;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 public class StartHotfixAction extends AbstractStartAction {
-
     public StartHotfixAction(GitRepository repo) {
         super(repo, "Start Hotfix");
     }
@@ -24,7 +23,8 @@ public class StartHotfixAction extends AbstractStartAction {
     }
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
+    @RequiredUIAccess
+    public void actionPerformed(@Nonnull AnActionEvent e) {
         super.actionPerformed(e);
 
         GitflowStartHotfixDialog dialog = new GitflowStartHotfixDialog(myProject, myRepo);
@@ -32,19 +32,19 @@ public class StartHotfixAction extends AbstractStartAction {
 
         if (dialog.getExitCode() != DialogWrapper.OK_EXIT_CODE) return;
 
-        final String hotfixName = dialog.getNewBranchName();
-        final String baseBranchName = dialog.getBaseBranchName();
+        String hotfixName = dialog.getNewBranchName();
+        String baseBranchName = dialog.getBaseBranchName();
 
         this.runAction(e.getData(Project.KEY), baseBranchName, hotfixName, null);
     }
 
-    public void runAction(final Project project, final String baseBranchName, final String hotfixName, @Nullable final Runnable callInAwtLater){
+    @Override public void runAction( Project project, final String baseBranchName, final String hotfixName, @Nullable final Runnable callInAwtLater){
         super.runAction(project, baseBranchName, hotfixName, callInAwtLater);
 
         new Task.Backgroundable(myProject, "Starting hotfix " + hotfixName, false) {
             @Override
-            public void run(@NotNull ProgressIndicator indicator) {
-                final GitCommandResult commandResult = createHotfixBranch(baseBranchName, hotfixName);
+            public void run(@Nonnull ProgressIndicator indicator) {
+                GitCommandResult commandResult = createHotfixBranch(baseBranchName, hotfixName);
                 if (callInAwtLater != null && commandResult.success()) {
                     callInAwtLater.run();
                 }

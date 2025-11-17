@@ -1,9 +1,10 @@
 package gitflow.ui;
 
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.ValidationInfo;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -38,10 +39,12 @@ public class GitflowBranchChooseDialog extends DialogWrapper {
 
     @Nullable
     @Override
+    @RequiredUIAccess
     protected ValidationInfo doValidate() {
         if (branchList.getSelectedRow() == -1) {
             return new ValidationInfo("No branch selected!");
-        } else {
+        }
+        else {
             return null;
         }
     }
@@ -72,33 +75,32 @@ public class GitflowBranchChooseDialog extends DialogWrapper {
         branchList.getRowSorter().toggleSortOrder(0);
         //add filtering capabilities.
         searchField.getDocument().addDocumentListener(
-                new DocumentListener() {
-                    @Override
-                    public void insertUpdate(DocumentEvent documentEvent) {
-                        filter();
-                    }
+            new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent documentEvent) {
+                    filter();
+                }
 
-                    @Override
-                    public void removeUpdate(DocumentEvent documentEvent) {
-                        filter();
-                    }
+                @Override
+                public void removeUpdate(DocumentEvent documentEvent) {
+                    filter();
+                }
 
-                    @Override
-                    public void changedUpdate(DocumentEvent documentEvent) {
-                        filter();
-                    }
+                @Override
+                public void changedUpdate(DocumentEvent documentEvent) {
+                    filter();
+                }
 
-                    private void filter() {
-                        String text = searchField.getText();
-                        if (text.trim().length() == 0) {
-                            rowSorter.setRowFilter(null);
-                        } else {
-                            rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
-                        }
+                private void filter() {
+                    String text = searchField.getText();
+                    if (text.trim().length() == 0) {
+                        rowSorter.setRowFilter(null);
+                    }
+                    else {
+                        rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
                     }
                 }
+            }
         );
     }
-
-
 }

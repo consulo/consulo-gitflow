@@ -2,12 +2,13 @@ package gitflow.actions;
 
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
 import gitflow.GitflowConfigUtil;
 import gitflow.ui.NotifyUtil;
-import org.jetbrains.annotations.NotNull;
+import jakarta.annotation.Nonnull;
 
 public class PublishHotfixAction extends AbstractPublishAction {
     PublishHotfixAction() {
@@ -19,8 +20,9 @@ public class PublishHotfixAction extends AbstractPublishAction {
     }
 
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent) {
-        super.actionPerformed(anActionEvent);
+    @RequiredUIAccess
+    public void actionPerformed(@Nonnull AnActionEvent e) {
+        super.actionPerformed(e);
 
         GitflowConfigUtil gitflowConfigUtil = GitflowConfigUtil.getInstance(myProject, myRepo);
         final String hotfixName = gitflowConfigUtil.getHotfixNameFromBranch(branchUtil.getCurrentBranchName());
@@ -28,19 +30,18 @@ public class PublishHotfixAction extends AbstractPublishAction {
 
         new Task.Backgroundable(myProject, "Publishing hotfix " + hotfixName, false) {
             @Override
-            public void run(@NotNull ProgressIndicator indicator) {
+            public void run(@Nonnull ProgressIndicator indicator) {
                 GitCommandResult result = myGitflow.publishHotfix(myRepo, hotfixName, errorLineHandler);
 
                 if (result.success()) {
                     String publishedHotfixMessage = String.format("A new remote branch '%s%s' was created", branchUtil.getPrefixHotfix(), hotfixName);
-                    NotifyUtil.notifySuccess((consulo.project.Project) myProject, hotfixName, publishedHotfixMessage);
+                    NotifyUtil.notifySuccess(myProject, hotfixName, publishedHotfixMessage);
                 } else {
-                    NotifyUtil.notifyError((consulo.project.Project) myProject, "Error", "Please have a look at the Version Control console for more details");
+                    NotifyUtil.notifyError(myProject, "Error", "Please have a look at the Version Control console for more details");
                 }
 
                 myRepo.update();
             }
         }.queue();
-
     }
 }

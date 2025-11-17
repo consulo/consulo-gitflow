@@ -1,16 +1,16 @@
 package gitflow.actions;
 
 import consulo.dataContext.DataContext;
-import consulo.language.editor.CommonDataKeys;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.ActionManager;
 import consulo.ui.ex.action.ActionPlaces;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.Presentation;
 import consulo.util.dataholder.Key;
 import git4idea.actions.GitResolveConflictsAction;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 /**
  * All actions associated with Gitflow
@@ -18,10 +18,17 @@ import org.jetbrains.annotations.Nullable;
  * @author Opher Vishnia / opherv.com / opherv@gmail.com
  */
 public class GitflowActions {
-
-    public static void runMergeTool(Project project){
+    @RequiredUIAccess
+    public static void runMergeTool(Project project) {
         GitResolveConflictsAction resolveAction = new GitResolveConflictsAction();
-        AnActionEvent e = new AnActionEvent(null, new ProjectDataContext(project), ActionPlaces.UNKNOWN, new Presentation(""), ActionManager.getInstance(), 0);
+        AnActionEvent e = new AnActionEvent(
+            null,
+            new ProjectDataContext(project),
+            ActionPlaces.UNKNOWN,
+            new Presentation(""),
+            ActionManager.getInstance(),
+            0
+        );
         resolveAction.actionPerformed(e);
     }
 
@@ -32,18 +39,19 @@ public class GitflowActions {
      * but that would make the semantics terrible
      */
     private final static class ProjectDataContext implements DataContext {
-        private Project project;
+        private final Project myProject;
 
         private ProjectDataContext(Project project) {
-            this.project = project;
+            this.myProject = project;
         }
 
         @Nullable
         @Override
-        public Object getData(@NotNull Key dataId) {
-            if(CommonDataKeys.PROJECT == dataId) {
-                return project;
-            } else {
+        public Object getData(@Nonnull Key dataId) {
+            if (Project.KEY == dataId) {
+                return myProject;
+            }
+            else {
                 throw new UnsupportedOperationException(dataId.toString());
             }
         }

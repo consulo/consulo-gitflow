@@ -10,11 +10,11 @@ import consulo.project.ui.wm.ToolWindowId;
 
 public class NotifyUtil {
     public static final NotificationGroup TOOLWINDOW_NOTIFICATION = NotificationGroup.toolWindowGroup(
-            "gitflow.errors", LocalizeValue.localizeTODO("Gitflow Errors"), ToolWindowId.VCS, true);
+        "gitflow.errors", LocalizeValue.localizeTODO("Gitflow Errors"), ToolWindowId.VCS, true);
     public static final NotificationGroup STICKY_NOTIFICATION = new NotificationGroup(
-            "gitflow.errors.sticky", LocalizeValue.localizeTODO("Gitflow Errors"), NotificationDisplayType.STICKY_BALLOON, true);
+        "gitflow.errors.sticky", LocalizeValue.localizeTODO("Gitflow Errors"), NotificationDisplayType.STICKY_BALLOON, true);
     public static final NotificationGroup BALLOON_NOTIFICATION = new NotificationGroup(
-            "gitflow.notifications", LocalizeValue.localizeTODO("Gitflow Notifications"), NotificationDisplayType.BALLOON, true);
+        "gitflow.notifications", LocalizeValue.localizeTODO("Gitflow Notifications"), NotificationDisplayType.BALLOON, true);
 
     public static void notifySuccess(ComponentManager project, String title, String message) {
         notify(NotificationType.INFORMATION, BALLOON_NOTIFICATION, project, title, message);

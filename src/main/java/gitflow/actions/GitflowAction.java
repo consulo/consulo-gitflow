@@ -2,9 +2,11 @@ package gitflow.actions;
 
 import consulo.ide.ServiceManager;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DumbAwareAction;
 import consulo.ui.ex.awt.Messages;
+import consulo.ui.ex.awt.UIUtil;
 import consulo.versionControlSystem.VcsException;
 import consulo.virtualFileSystem.VirtualFileManager;
 import git4idea.branch.GitBranchUtil;
@@ -15,25 +17,28 @@ import gitflow.GitflowBranchUtil;
 import gitflow.GitflowBranchUtilManager;
 import gitflow.IDEAUtils;
 import gitflow.ui.NotifyUtil;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class GitflowAction extends DumbAwareAction {
-
     private static final long VFM_REFRESH_DELAY = 750L;
 
     Project myProject;
-    Gitflow myGitflow = ServiceManager.getService(Gitflow.class);
-    ArrayList<GitRepository> repos = new ArrayList<GitRepository>();
+    final Gitflow myGitflow = ServiceManager.getService(Gitflow.class);
+    final List<GitRepository> myRepos = new ArrayList<>();
     GitRepository myRepo;
     GitflowBranchUtil branchUtil;
 
-    VirtualFileManager virtualFileMananger;
+    VirtualFileManager virtualFileManager;
 
-    GitflowAction( String actionName){ super(actionName); }
+    GitflowAction(String actionName) {
+        super(actionName);
+    }
 
-    GitflowAction(GitRepository repo, String actionName){
+    GitflowAction(GitRepository repo, String actionName) {
         super(actionName);
         myRepo = repo;
 
@@ -41,33 +46,40 @@ public abstract class GitflowAction extends DumbAwareAction {
     }
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
+    @RequiredUIAccess
+    public void actionPerformed(@Nonnull AnActionEvent e) {
         Project project = IDEAUtils.getActiveProject();
 
         // if repo isn't set explicitly, such as in the case of starting from keyboard shortcut, infer it
-        if (myRepo == null){
+        if (myRepo == null) {
             myRepo = GitBranchUtil.getCurrentRepository(project);
         }
         setup(project);
     }
 
-    private void setup(Project project){
+    private void setup(Project project) {
         myProject = project;
-        virtualFileMananger = VirtualFileManager.getInstance();
-        repos.add(myRepo);
+        virtualFileManager = VirtualFileManager.getInstance();
+        myRepos.add(myRepo);
 
-        branchUtil= GitflowBranchUtilManager.getBranchUtil(myRepo);
+        branchUtil = GitflowBranchUtilManager.getBranchUtil(myRepo);
     }
 
-    public void runAction(final Project project, final String baseBranchName, final String branchName, @Nullable final Runnable callInAwtLater){
+    public void runAction(
+        Project project,
+        String baseBranchName,
+        String branchName,
+        @Nullable Runnable callInAwtLater
+    ) {
         setup(project);
     }
 
     //returns true if merge successful, false otherwise
-    public boolean handleMerge(final Project project) {
+    @RequiredUIAccess
+    public boolean handleMerge(Project project) {
         // FIXME As of 201.0 the async version of this method still doesn't make use of the callback, else we'd
         //  simply use a FutureTask (which is a Runnable) and its get() method prior to launching the merge tool.
-        virtualFileMananger.syncRefresh();
+        virtualFileManager.syncRefresh();
 
         try {
             long start, end = System.currentTimeMillis();
@@ -81,12 +93,13 @@ public abstract class GitflowAction extends DumbAwareAction {
 
                 GitflowActions.runMergeTool(project); // The window is modal, so we can measure how long it's opened.
                 end = System.currentTimeMillis();
-            } while(end - start < 1000L); // Additional hack: a window open <1s obviously didn't open, let's try again.
+            }
+            while (end - start < 1000L); // Additional hack: a window open <1s obviously didn't open, let's try again.
 
             myRepo.update();
 
             // And refreshing again so an onscreen file doesn't show in a conflicted state when the Y/N dialog show up.
-            virtualFileMananger.syncRefresh();
+            virtualFileManager.syncRefresh();
             Thread.sleep(VFM_REFRESH_DELAY);
 
             return askUserForMergeSuccess(project);
@@ -96,27 +109,32 @@ public abstract class GitflowAction extends DumbAwareAction {
         }
     }
 
+    @RequiredUIAccess
     private static boolean askUserForMergeSuccess(Project myProject) {
         //if merge was completed successfully, finish the action
         //note that if it wasn't intellij is left in the "merging state", and git4idea provides no UI way to resolve it
         //merging can be done via intellij itself or any other util
-        int answer = Messages.showYesNoDialog(myProject, "Was the merge completed succesfully?", "Merge", Messages.getQuestionIcon());
-        if (answer==0){
-            GitMerger gitMerger=new GitMerger(myProject);
+        int answer = Messages.showYesNoDialog(myProject, "Was the merge completed successfully?", "Merge", UIUtil.getQuestionIcon());
+        if (answer == 0) {
+            GitMerger gitMerger = new GitMerger(myProject);
 
             try {
                 gitMerger.mergeCommit(gitMerger.getMergingRoots());
-            } catch (VcsException e1) {
+            }
+            catch (VcsException e1) {
                 NotifyUtil.notifyError(myProject, "Error", "Error committing merge result");
                 e1.printStackTrace();
             }
 
             return true;
         }
-        else{
-
-	        NotifyUtil.notifyInfo(myProject,"Merge incomplete","To manually complete the merge choose VCS > Git > Resolve Conflicts.\n" +
-			        "Once done, commit the merged files.\n");
+        else {
+            NotifyUtil.notifyInfo(
+                myProject,
+                "Merge incomplete",
+                "To manually complete the merge choose VCS > Git > Resolve Conflicts.\n" +
+                    "Once done, commit the merged files.\n"
+            );
             return false;
         }
 

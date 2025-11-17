@@ -8,17 +8,19 @@ import consulo.versionControlSystem.distributed.branch.BranchActionGroup;
 import consulo.versionControlSystem.distributed.branch.PopupElementWithAdditionalInfo;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 
 class RepoActions extends BranchActionGroup implements PopupElementWithAdditionalInfo, FileEditorManagerListener {
-    Project myProject;
-    GitRepository myRepo;
+    @Nonnull
+    final Project myProject;
+    @Nonnull
+    final GitRepository myRepo;
 
-    RepoActions(@NotNull Project project, @NotNull GitRepository repo) {
+    RepoActions(@Nonnull Project project, @Nonnull GitRepository repo) {
         myProject = project;
         myRepo = repo;
 
@@ -28,8 +30,8 @@ class RepoActions extends BranchActionGroup implements PopupElementWithAdditiona
         project.getMessageBus().connect().subscribe(FileEditorManagerListener.class, this);
     }
 
-    public ArrayList<AnAction> getRepoActions(boolean includeAdvanced){
-        ArrayList<AnAction> actionList = new ArrayList<AnAction>();
+    public List<AnAction> getRepoActions(boolean includeAdvanced) {
+        List<AnAction> actionList = new ArrayList<>();
 
         actionList.add(new InitRepoAction(myRepo));
 
@@ -64,11 +66,11 @@ class RepoActions extends BranchActionGroup implements PopupElementWithAdditiona
             actionList.add(new AnSeparator("Advanced"));
 
             actionList.add(new ActionGroup("Advanced", true) {
-                @NotNull
+                @Nonnull
                 @Override
                 public AnAction[] getChildren(@Nullable AnActionEvent anActionEvent) {
                     AnAction initRepoAction = new ReInitRepoAction(myRepo);
-                    return new AnAction[] { initRepoAction };
+                    return new AnAction[]{initRepoAction};
                 }
             });
         }
@@ -76,22 +78,20 @@ class RepoActions extends BranchActionGroup implements PopupElementWithAdditiona
         return actionList;
     }
 
-    public DefaultActionGroup getRepoActionGroup(boolean includeAdvanced){
+    public DefaultActionGroup getRepoActionGroup(boolean includeAdvanced) {
         DefaultActionGroup actionGroup = new DefaultActionGroup();
 
-        Iterator actionsIterator = this.getRepoActions(includeAdvanced).iterator();
-        while(actionsIterator.hasNext()){
-            AnAction action = (AnAction) actionsIterator.next();
+        for (AnAction action : this.getRepoActions(includeAdvanced)) {
             actionGroup.add(action);
         }
 
         return actionGroup;
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public AnAction[] getChildren(@Nullable AnActionEvent e) {
-        ArrayList<AnAction> children = this.getRepoActions(false);
+        List<AnAction> children = this.getRepoActions(false);
         return children.toArray(new AnAction[children.size()]);
     }
 
@@ -101,13 +101,13 @@ class RepoActions extends BranchActionGroup implements PopupElementWithAdditiona
         return "what's this";
     }
 
-    public void updateFavoriteIcon(){
+    public void updateFavoriteIcon() {
         boolean isFavorite = GitBranchUtil.getCurrentRepository(myProject) == myRepo;
         setFavorite(isFavorite);
     }
 
     @Override
-    public void selectionChanged(@NotNull FileEditorManagerEvent event) {
+    public void selectionChanged(@Nonnull FileEditorManagerEvent event) {
         this.updateFavoriteIcon();
     }
 }

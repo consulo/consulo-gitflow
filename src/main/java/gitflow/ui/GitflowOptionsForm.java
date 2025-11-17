@@ -1,58 +1,57 @@
 package gitflow.ui;
 
 import gitflow.GitflowOptionsFactory;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author Andreas Vogler (Andreas.Vogler@geneon.de)
  * @author Opher Vishnia (opherv@gmail.com)
  */
-public class GitflowOptionsForm  implements ItemListener {
-
+public class GitflowOptionsForm implements ItemListener {
     private JPanel contentPane;
     private JPanel releasePanel;
     private JPanel featurePanel;
     private JPanel hotfixPanel;
     private JPanel bugfixPanel;
 
-    Map<Enum<GitflowOptionsFactory.TYPE>, ArrayList<Map<String,String>>> gitflowOptions;
-    Map<String, OptionComponent> optionComponents;
+    final Map<Enum<GitflowOptionsFactory.TYPE>, List<Map<String, String>>> gitflowOptions;
+    final Map<String, OptionComponent> optionComponents;
 
-    private class OptionComponent{
-        public JComponent checkbox;
-        public JComponent textfield;
+    private class OptionComponent {
+        public final JComponent checkbox;
+        public final JComponent textField;
 
-        public OptionComponent(JComponent checkboxComponent, @Nullable JComponent textfieldComponent){
+        public OptionComponent(JComponent checkboxComponent, @Nullable JComponent textFieldComponent) {
             this.checkbox = checkboxComponent;
-            this.textfield = textfieldComponent;
+            this.textField = textFieldComponent;
         }
     }
 
-    public GitflowOptionsForm(){
+    public GitflowOptionsForm() {
         gitflowOptions = GitflowOptionsFactory.getOptions();
 
-        optionComponents = new HashMap<String,OptionComponent>();
+        optionComponents = new HashMap<>();
         featurePanel.setLayout(new BoxLayout(featurePanel, BoxLayout.Y_AXIS));
         hotfixPanel.setLayout(new BoxLayout(hotfixPanel, BoxLayout.Y_AXIS));
         releasePanel.setLayout(new BoxLayout(releasePanel, BoxLayout.Y_AXIS));
         bugfixPanel.setLayout(new BoxLayout(bugfixPanel, BoxLayout.Y_AXIS));
 
-        HashMap<GitflowOptionsFactory.TYPE, JPanel> branchTypeToPanel = new HashMap<GitflowOptionsFactory.TYPE, JPanel>();
+        Map<GitflowOptionsFactory.TYPE, JPanel> branchTypeToPanel = new HashMap<>();
 
         branchTypeToPanel.put(GitflowOptionsFactory.TYPE.FEATURE, featurePanel);
         branchTypeToPanel.put(GitflowOptionsFactory.TYPE.RELEASE, releasePanel);
         branchTypeToPanel.put(GitflowOptionsFactory.TYPE.HOTFIX, hotfixPanel);
         branchTypeToPanel.put(GitflowOptionsFactory.TYPE.BUGFIX, bugfixPanel);
 
-        for (GitflowOptionsFactory.TYPE type: GitflowOptionsFactory.TYPE.values()) {
+        for (GitflowOptionsFactory.TYPE type : GitflowOptionsFactory.TYPE.values()) {
             JPanel optionPanel = branchTypeToPanel.get(type);
 
             for (Map<String, String> optionMap : gitflowOptions.get(type)) {
@@ -62,7 +61,7 @@ public class GitflowOptionsForm  implements ItemListener {
 
                 JCheckBox checkbox = new JCheckBox();
                 String checkboxText = optionMap.get("description");
-                if (optionMap.get("flag") != null){
+                if (optionMap.get("flag") != null) {
                     checkboxText += " (" + optionMap.get("flag") + ")";
                 }
                 checkbox.setText(checkboxText);
@@ -94,27 +93,30 @@ public class GitflowOptionsForm  implements ItemListener {
         return contentPane;
     }
 
-    /** Listens to the check boxes. */
+    /**
+     * Listens to the check boxes.
+     */
+    @Override
     public void itemStateChanged(ItemEvent e) {
         this.updateFormDisabledStatus();
     }
 
-    public void updateFormDisabledStatus(){
+    public void updateFormDisabledStatus() {
         JCheckBox dontTagRelease = (JCheckBox) optionComponents.get("RELEASE_dontTag").checkbox;
         JCheckBox customTagCommitMessageCheckbox = (JCheckBox) optionComponents.get("RELEASE_customTagCommitMessage").checkbox;
-        JTextField customTagCommitMessageTexfield = (JTextField) optionComponents.get("RELEASE_customTagCommitMessage").textfield;
+        JTextField customTagCommitMessageTexfield = (JTextField) optionComponents.get("RELEASE_customTagCommitMessage").textField;
 
         JCheckBox dontTagHotfix = (JCheckBox) optionComponents.get("HOTFIX_dontTag").checkbox;
         JCheckBox customHotfixCommitMessageCheckbox = (JCheckBox) optionComponents.get("HOTFIX_customHotfixCommitMessage").checkbox;
-        JTextField customHotfixCommitMessageTextfield = (JTextField) optionComponents.get("HOTFIX_customHotfixCommitMessage").textfield;
+        JTextField customHotfixCommitMessageTextfield = (JTextField) optionComponents.get("HOTFIX_customHotfixCommitMessage").textField;
 
         //disable\enable the finish release tag commit message according to the checkbox state
 
-        if (customTagCommitMessageCheckbox.isSelected() && dontTagRelease.isSelected()==false) {
+        if (customTagCommitMessageCheckbox.isSelected() && !dontTagRelease.isSelected()) {
             customTagCommitMessageTexfield.setEditable(true);
             customTagCommitMessageTexfield.setEnabled(true);
         }
-        else{
+        else {
             customTagCommitMessageTexfield.setEditable(false);
         }
 
@@ -122,9 +124,9 @@ public class GitflowOptionsForm  implements ItemListener {
             customTagCommitMessageCheckbox.setEnabled(false);
             customTagCommitMessageTexfield.setEnabled(false);
         }
-        else{
+        else {
             customTagCommitMessageCheckbox.setEnabled(true);
-            if( customTagCommitMessageCheckbox.isSelected()){
+            if (customTagCommitMessageCheckbox.isSelected()) {
                 customTagCommitMessageTexfield.setEnabled(true);
                 customTagCommitMessageTexfield.setEditable(true);
             }
@@ -135,7 +137,7 @@ public class GitflowOptionsForm  implements ItemListener {
             customHotfixCommitMessageTextfield.setEditable(true);
             customHotfixCommitMessageTextfield.setEnabled(true);
         }
-        else{
+        else {
             customHotfixCommitMessageTextfield.setEditable(false);
         }
 
@@ -143,35 +145,34 @@ public class GitflowOptionsForm  implements ItemListener {
             customHotfixCommitMessageCheckbox.setEnabled(false);
             customHotfixCommitMessageTextfield.setEnabled(false);
         }
-        else{
+        else {
             customHotfixCommitMessageCheckbox.setEnabled(true);
-            if( customHotfixCommitMessageCheckbox.isSelected()){
+            if (customHotfixCommitMessageCheckbox.isSelected()) {
                 customHotfixCommitMessageTextfield.setEnabled(true);
                 customHotfixCommitMessageTextfield.setEditable(true);
             }
         }
     }
 
-    public boolean isOptionActive(String optionId){
+    public boolean isOptionActive(String optionId) {
         return ((JCheckBox) optionComponents.get(optionId).checkbox).isSelected();
     }
 
-    public String getOptionText(String optionId){
+    public String getOptionText(String optionId) {
         String text = null;
-        JTextField textField = (JTextField) optionComponents.get(optionId).textfield;
-        if (textField != null){
+        JTextField textField = (JTextField) optionComponents.get(optionId).textField;
+        if (textField != null) {
             text = textField.getText();
         }
-        
+
         return text;
     }
 
-    public void setOptionActive(String optionId, boolean selected){
+    public void setOptionActive(String optionId, boolean selected) {
         ((JCheckBox) optionComponents.get(optionId).checkbox).setSelected(selected);
     }
 
-    public void setOptionText(String optionId, String text){
-        ((JTextField) optionComponents.get(optionId).textfield).setText(text);
+    public void setOptionText(String optionId, String text) {
+        ((JTextField) optionComponents.get(optionId).textField).setText(text);
     }
-
 }

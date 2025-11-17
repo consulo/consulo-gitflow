@@ -6,8 +6,7 @@ import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
 
 /**
  * This class maps repos to their corresponding branch utils
@@ -15,7 +14,7 @@ import java.util.List;
  */
 
 public class GitflowBranchUtilManager {
-    private static HashMap<String, GitflowBranchUtil> repoBranchUtilMap;
+    private static Map<String, GitflowBranchUtil> repoBranchUtilMap;
 
     static public GitflowBranchUtil getBranchUtil(GitRepository repo){
         if (repo != null && repoBranchUtilMap != null) {
@@ -34,19 +33,15 @@ public class GitflowBranchUtilManager {
 
     /**
      * Repopulates the branchUtils for each repo
-     * @param proj
+     * @param project
      */
-    static public void update(Project proj){
+    static public void update(Project project){
         if (repoBranchUtilMap == null){
-            repoBranchUtilMap = new HashMap<String, gitflow.GitflowBranchUtil>();
+            repoBranchUtilMap = new HashMap<>();
         }
 
-        List<GitRepository> gitRepositories = GitUtil.getRepositoryManager(proj).getRepositories();
-
-        Iterator gitRepositoriesIterator = gitRepositories.iterator();
-        while(gitRepositoriesIterator.hasNext()){
-            GitRepository repo = (GitRepository) gitRepositoriesIterator.next();
-            GitflowBranchUtilManager.setupBranchUtil(proj, repo);
+        for (GitRepository repo : GitUtil.getRepositoryManager(project).getRepositories()) {
+            GitflowBranchUtilManager.setupBranchUtil(project, repo);
         }
     }
 }

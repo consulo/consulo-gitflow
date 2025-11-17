@@ -5,7 +5,6 @@ import consulo.util.dataholder.Key;
 import gitflow.ui.NotifyUtil;
 
 public class GitflowErrorsListener extends GitflowLineHandler {
-
     boolean hasMergeError = false;
 
     GitflowErrorsListener(ComponentManager project) {
@@ -24,5 +23,4 @@ public class GitflowErrorsListener extends GitflowLineHandler {
             hasMergeError = true;
         }
     }
-
 }
