@@ -4,36 +4,35 @@ import consulo.disposer.Disposer;
 import consulo.ide.ServiceManager;
 import consulo.logging.Logger;
 import consulo.project.Project;
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GitflowVersionTester {
-
     private static final Logger logger = Logger.getInstance(GitflowVersionTester.class);
 
     private static final Map<Project, GitflowVersionTester> testers = new ConcurrentHashMap<>();
 
-    public static GitflowVersionTester forProject(@NotNull Project project) {
+    public static GitflowVersionTester forProject(@Nonnull Project project) {
         return testers.computeIfAbsent(
-                project,
-                p -> {
-                    Disposer.register(p, () -> testers.remove(p));
-                    return new GitflowVersionTester(ServiceManager.getService(Gitflow.class), p);
-                }
+            project,
+            p -> {
+                Disposer.register(p, () -> testers.remove(p));
+                return new GitflowVersionTester(ServiceManager.getService(Gitflow.class), p);
+            }
         );
     }
 
-    @NotNull
+    @Nonnull
     private final Gitflow gitflow;
-    @NotNull
+    @Nonnull
     private final Project project;
 
     private String version = null;
 
-    private GitflowVersionTester(@NotNull Gitflow gitflow, @NotNull Project project) {
+    private GitflowVersionTester(@Nonnull Gitflow gitflow, @Nonnull Project project) {
         this.gitflow = gitflow;
         this.project = project;
     }

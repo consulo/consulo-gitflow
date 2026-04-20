@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 
 /**
  * @author VISTALL
- * @since 24/05/2023
+ * @since 2023-05-24
  */
 @ExtensionImpl
 public class GitflowNotificationGroup implements NotificationGroupContributor {

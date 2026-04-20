@@ -3,17 +3,17 @@ package gitflow.actions;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import git4idea.branch.GitBranchUtil;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
 import gitflow.GitflowConfigUtil;
 import gitflow.ui.NotifyUtil;
-import org.jetbrains.annotations.NotNull;
+import jakarta.annotation.Nonnull;
 
 public class FinishBugfixAction extends AbstractBranchAction {
-
-    String customBugfixName =null;
+    String customBugfixName = null;
 
     public FinishBugfixAction() {
         super("Finish Bugfix", BranchType.Bugfix);
@@ -25,33 +25,31 @@ public class FinishBugfixAction extends AbstractBranchAction {
 
     FinishBugfixAction(GitRepository repo, String name) {
         super(repo, "Finish Bugfix", BranchType.Bugfix);
-        customBugfixName =name;
+        customBugfixName = name;
     }
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
+    @RequiredUIAccess
+    public void actionPerformed(@Nonnull AnActionEvent e) {
         super.actionPerformed(e);
 
         String currentBranchName = GitBranchUtil.getBranchNameOrRev(myRepo);
-        if (currentBranchName.isEmpty()==false){
-
-            final AnActionEvent event=e;
-            final String bugfixName;
+        if (!currentBranchName.isEmpty()) {
+            String bugfixName;
             // Check if a bugfix name was specified, otherwise take name from current branch
-            if (customBugfixName !=null){
+            if (customBugfixName != null) {
                 bugfixName = customBugfixName;
             }
-            else{
+            else {
                 GitflowConfigUtil gitflowConfigUtil = GitflowConfigUtil.getInstance(myProject, myRepo);
                 bugfixName = gitflowConfigUtil.getBugfixNameFromBranch(currentBranchName);
             }
 
             this.runAction(myProject, bugfixName);
         }
-
     }
 
-    public void runAction(final Project project, final String bugfixName){
+    public void runAction(final Project project, final String bugfixName) {
         super.runAction(project, null, bugfixName, null);
 
         final GitflowErrorsListener errorLineHandler = new GitflowErrorsListener(myProject);
@@ -59,19 +57,23 @@ public class FinishBugfixAction extends AbstractBranchAction {
 
         GitflowConfigUtil gitflowConfigUtil = GitflowConfigUtil.getInstance(project, myRepo);
 
-        new Task.Backgroundable(myProject,"Finishing bugfix "+bugfixName,false){
+        new Task.Backgroundable(myProject, "Finishing bugfix " + bugfixName, false) {
             @Override
-            public void run(@NotNull ProgressIndicator indicator) {
-                GitCommandResult result =  myGitflow.finishBugfix(myRepo, bugfixName, errorLineHandler);
+            public void run(@Nonnull ProgressIndicator indicator) {
+                GitCommandResult result = myGitflow.finishBugfix(myRepo, bugfixName, errorLineHandler);
 
                 //get the base branch for this bugfix
-                final String baseBranch = gitflowConfigUtil.getBaseBranch(branchUtil.getPrefixBugfix()+bugfixName);
+                String baseBranch = gitflowConfigUtil.getBaseBranch(branchUtil.getPrefixBugfix() + bugfixName);
 
                 if (result.success()) {
-                    String finishedBugfixMessage = String.format("The bugfix branch '%s%s' was merged into '%s'", branchUtil.getPrefixBugfix(), bugfixName, baseBranch);
+                    String finishedBugfixMessage = String.format("The bugfix branch '%s%s' was merged into '%s'",
+                        branchUtil.getPrefixBugfix(),
+                        bugfixName,
+                        baseBranch
+                    );
                     NotifyUtil.notifySuccess(myProject, bugfixName, finishedBugfixMessage);
                 }
-                else if(errorLineHandler.hasMergeError){
+                else if (errorLineHandler.hasMergeError) {
                     // (merge errors are handled in the onSuccess handler)
                 }
                 else {
@@ -79,24 +81,21 @@ public class FinishBugfixAction extends AbstractBranchAction {
                 }
 
                 myRepo.update();
-
             }
 
             @Override
+            @RequiredUIAccess
             public void onSuccess() {
                 super.onSuccess();
 
                 //merge conflicts if necessary
-                if (errorLineHandler.hasMergeError){
-                    if (handleMerge(project)){
+                if (errorLineHandler.hasMergeError) {
+                    if (handleMerge(project)) {
                         that.runAction(project, bugfixName);
                         FinishBugfixAction completeFinishBugfixAction = new FinishBugfixAction(myRepo, bugfixName);
                     }
-
                 }
-
             }
         }.queue();
     }
-
 }

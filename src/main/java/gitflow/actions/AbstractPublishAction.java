@@ -13,10 +13,6 @@ public abstract class AbstractPublishAction extends AbstractBranchAction {
 
     @Override
     protected boolean isActionAllowedForBranch() {
-        if (!super.isActionAllowedForBranch()) {
-            return false;
-        }
-        
-        return !branchUtil.isCurrentBranchPublished();
+        return super.isActionAllowedForBranch() && !branchUtil.isCurrentBranchPublished();
     }
 }

@@ -5,15 +5,15 @@ import consulo.ui.ex.action.ActionGroup;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
 import gitflow.actions.GitflowPopupGroup;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 public class GitflowMenu extends ActionGroup {
     public GitflowMenu() {
         super("Gitflow", true);
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public AnAction[] getChildren(@Nullable AnActionEvent e) {
         if (e == null) {

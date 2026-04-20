@@ -1,23 +1,22 @@
 package gitflow.ui;
 
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.CollectionComboBoxModel;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.ValidationInfo;
 import consulo.util.lang.StringUtil;
 import gitflow.GitflowInitOptions;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nullable;
 
 import javax.swing.*;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.Arrays;
 import java.util.List;
 
 /**
  * @author Andreas Vogler (Andreas.Vogler@geneon.de)
  */
-
 public class GitflowInitOptionsDialog extends DialogWrapper {
     private JPanel contentPane;
     private JCheckBox useNonDefaultConfigurationCheckBox;
@@ -31,29 +30,25 @@ public class GitflowInitOptionsDialog extends DialogWrapper {
     private JTextField versionPrefixTextField;
     private JTextField bugfixPrefixTextField;
 
-    private List<String> localBranches;
+    private final List<String> myLocalBranches;
 
-    public GitflowInitOptionsDialog(Project project, List<String> _localBranches) {
+    public GitflowInitOptionsDialog(Project project, List<String> localBranches) {
         super(project);
-        localBranches = _localBranches;
+        myLocalBranches = localBranches;
 
         setTitle("Options for gitflow init");
         setLocalBranchesComboBox(false);
 
         init();
-        useNonDefaultConfigurationCheckBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                enableFields(e.getStateChange()==ItemEvent.SELECTED);
-            }
-        });
+        useNonDefaultConfigurationCheckBox.addItemListener(e -> enableFields(e.getStateChange() == ItemEvent.SELECTED));
     }
 
-    private void setLocalBranchesComboBox(boolean isNonDefault){
-        if (isNonDefault){
-            developmentBranchComboBox.setModel(new CollectionComboBoxModel(localBranches));
-            productionBranchComboBox.setModel(new CollectionComboBoxModel(localBranches));
-        } else {
+    private void setLocalBranchesComboBox(boolean isNonDefault) {
+        if (isNonDefault) {
+            developmentBranchComboBox.setModel(new CollectionComboBoxModel(myLocalBranches));
+            productionBranchComboBox.setModel(new CollectionComboBoxModel(myLocalBranches));
+        }
+        else {
             developmentBranchComboBox.setModel(new CollectionComboBoxModel(Arrays.asList("develop")));
             productionBranchComboBox.setModel(new CollectionComboBoxModel(Arrays.asList("master")));
         }
@@ -72,13 +67,11 @@ public class GitflowInitOptionsDialog extends DialogWrapper {
         versionPrefixTextField.setEnabled(enable);
     }
 
-    public boolean useNonDefaultConfiguration()
-    {
+    public boolean useNonDefaultConfiguration() {
         return useNonDefaultConfigurationCheckBox.isSelected();
     }
 
-    public GitflowInitOptions getOptions()
-    {
+    public GitflowInitOptions getOptions() {
         GitflowInitOptions options = new GitflowInitOptions();
 
         options.setUseDefaults(!useNonDefaultConfigurationCheckBox.isSelected());
@@ -96,11 +89,12 @@ public class GitflowInitOptionsDialog extends DialogWrapper {
 
     @Nullable
     @Override
+    @RequiredUIAccess
     protected ValidationInfo doValidate() {
         String message = "Please fill all branch names and prefixes";
 
-        if(useNonDefaultConfiguration()) {
-            if(productionBranchComboBox.getSelectedItem().equals(developmentBranchComboBox.getSelectedItem())) {
+        if (useNonDefaultConfiguration()) {
+            if (productionBranchComboBox.getSelectedItem().equals(developmentBranchComboBox.getSelectedItem())) {
                 return new ValidationInfo("Production and development branch must be distinct branches", developmentBranchComboBox);
             }
             if (StringUtil.isEmptyOrSpaces(featurePrefixTextField.getText())) {

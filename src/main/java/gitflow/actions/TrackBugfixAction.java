@@ -2,6 +2,7 @@ package gitflow.actions;
 
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRemote;
@@ -9,13 +10,12 @@ import git4idea.repo.GitRepository;
 import gitflow.GitflowConfigUtil;
 import gitflow.ui.GitflowBranchChooseDialog;
 import gitflow.ui.NotifyUtil;
-import org.jetbrains.annotations.NotNull;
+import jakarta.annotation.Nonnull;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 
 public class TrackBugfixAction extends AbstractTrackAction {
-
     TrackBugfixAction() {
         super("Track Bugfix", BranchType.Bugfix);
     }
@@ -25,15 +25,15 @@ public class TrackBugfixAction extends AbstractTrackAction {
     }
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
+    @RequiredUIAccess
+    public void actionPerformed(@Nonnull AnActionEvent e) {
         super.actionPerformed(e);
 
-        ArrayList<String> remoteBranches = branchUtil.getRemoteBranchNames();
-        ArrayList<String> remoteBugfixBranches = new ArrayList<String>();
+        List<String> remoteBranches = branchUtil.getRemoteBranchNames();
+        List<String> remoteBugfixBranches = new ArrayList<>();
 
         //get only the branches with the proper prefix
-        for (Iterator<String> i = remoteBranches.iterator(); i.hasNext(); ) {
-            String item = i.next();
+        for (String item : remoteBranches) {
             if (item.contains(branchUtil.getPrefixBugfix())) {
                 remoteBugfixBranches.add(item);
             }
@@ -53,21 +53,27 @@ public class TrackBugfixAction extends AbstractTrackAction {
 
                 new Task.Backgroundable(myProject, "Tracking bugfix " + bugfixName, false) {
                     @Override
-                    public void run(@NotNull ProgressIndicator indicator) {
+                    public void run(@Nonnull ProgressIndicator indicator) {
                         GitCommandResult result = myGitflow.trackBugfix(myRepo, bugfixName, remote, errorLineHandler);
                         if (result.success()) {
-                            String trackedBugfixMessage = String.format("A new branch '%s%s' was created", branchUtil.getPrefixBugfix(), bugfixName);
+                            String trackedBugfixMessage =
+                                String.format("A new branch '%s%s' was created", branchUtil.getPrefixBugfix(), bugfixName);
                             NotifyUtil.notifySuccess(myProject, bugfixName, trackedBugfixMessage);
-                        } else {
-                            NotifyUtil.notifyError(myProject, "Error", "Please have a look at the Version Control console for more details");
+                        }
+                        else {
+                            NotifyUtil.notifyError(
+                                myProject,
+                                "Error",
+                                "Please have a look at the Version Control console for more details"
+                            );
                         }
                         myRepo.update();
                     }
                 }.queue();
             }
-        } else {
+        }
+        else {
             NotifyUtil.notifyError(myProject, "Error", "No remote branches");
         }
-
     }
 }

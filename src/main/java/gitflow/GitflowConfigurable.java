@@ -8,14 +8,15 @@ import consulo.configurable.StandardConfigurableIds;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.project.ProjectPropertiesComponent;
+import consulo.ui.annotation.RequiredUIAccess;
 import gitflow.ui.GitflowOptionsForm;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,18 +25,17 @@ import java.util.Map;
  */
 @ExtensionImpl
 public class GitflowConfigurable implements ProjectConfigurable {
-
-    Project project;
+    final Project project;
     GitflowOptionsForm gitflowOptionsForm;
-    PropertiesComponent propertiesComponent;
-    Map<Enum<GitflowOptionsFactory.TYPE>, ArrayList<Map<String,String>>> gitflowOptions;
-    Map<String, String> optionDefaults;
+    final PropertiesComponent propertiesComponent;
+    final Map<Enum<GitflowOptionsFactory.TYPE>, List<Map<String, String>>> gitflowOptions;
+    final Map<String, String> optionDefaults;
 
     @Inject
     public GitflowConfigurable(Project project, ProjectPropertiesComponent projectPropertiesComponent) {
         gitflowOptions = GitflowOptionsFactory.getOptions();
         propertiesComponent = projectPropertiesComponent;
-        optionDefaults = new HashMap<String, String>();
+        optionDefaults = new HashMap<>();
         this.project = project;
     }
 
@@ -51,6 +51,7 @@ public class GitflowConfigurable implements ProjectConfigurable {
         return StandardConfigurableIds.VCS_GROUP;
     }
 
+    @Nonnull
     @Override
     public LocalizeValue getDisplayName() {
         return LocalizeValue.localizeTODO("Gitflow");
@@ -64,44 +65,47 @@ public class GitflowConfigurable implements ProjectConfigurable {
 
     @Nullable
     @Override
+    @RequiredUIAccess
     public JComponent createComponent() {
         gitflowOptionsForm = new GitflowOptionsForm();
         return gitflowOptionsForm.getContentPane();
     }
 
-    public static boolean isOptionActive(Project project, String optionId){
-        return ProjectPropertiesComponent.getInstance(project).getBoolean(optionId+"_active");
+    public static boolean isOptionActive(Project project, String optionId) {
+        return ProjectPropertiesComponent.getInstance(project).getBoolean(optionId + "_active");
     }
 
-    public static String getOptionTextString (Project project, String optionId){
-        String retValue = ProjectPropertiesComponent.getInstance(project).getValue(optionId+"_text");
-        if (retValue == null){
+    public static String getOptionTextString(Project project, String optionId) {
+        String retValue = ProjectPropertiesComponent.getInstance(project).getValue(optionId + "_text");
+        if (retValue == null) {
             retValue = DefaultOptions.getOption(optionId);
         }
         return retValue;
     }
 
     @Override
+    @RequiredUIAccess
     public boolean isModified() {
         // iterate over branch types (feature/release/hotfix/bugfix)
-        for (GitflowOptionsFactory.TYPE type: GitflowOptionsFactory.TYPE.values()) {
+        for (GitflowOptionsFactory.TYPE type : GitflowOptionsFactory.TYPE.values()) {
             for (Map<String, String> optionMap : gitflowOptions.get(type)) {
                 String optionId = GitflowOptionsFactory.getOptionId(type, optionMap.get("key"));
 
                 boolean isOptionActiveInForm = gitflowOptionsForm.isOptionActive(optionId);
-                boolean savedOptionIsActive = propertiesComponent.getBoolean(optionId+"_active");
+                boolean savedOptionIsActive = propertiesComponent.getBoolean(optionId + "_active");
 
-                if (isOptionActiveInForm != savedOptionIsActive) return true;
+                if (isOptionActiveInForm != savedOptionIsActive) {
+                    return true;
+                }
 
                 // option has text value
-                if (optionMap.get("inputText") != null){
+                if (optionMap.get("inputText") != null) {
                     String textInForm = gitflowOptionsForm.getOptionText(optionId);
-                    String savedOptionText = propertiesComponent.getValue(optionId+"text");
-                    if (textInForm.equals(savedOptionText) == false){
+                    String savedOptionText = propertiesComponent.getValue(optionId + "text");
+                    if (!textInForm.equals(savedOptionText)) {
                         return true;
                     }
                 }
-
             }
         }
 
@@ -109,55 +113,52 @@ public class GitflowConfigurable implements ProjectConfigurable {
     }
 
     @Override
+    @RequiredUIAccess
     public void apply() throws ConfigurationException {
         // iterate over branch types (feature/release/hotfix/bugfix)
-        for (GitflowOptionsFactory.TYPE type: GitflowOptionsFactory.TYPE.values()) {
+        for (GitflowOptionsFactory.TYPE type : GitflowOptionsFactory.TYPE.values()) {
             for (Map<String, String> optionMap : gitflowOptions.get(type)) {
                 String optionId = GitflowOptionsFactory.getOptionId(type, optionMap.get("key"));
 
                 // set isActive value
-                propertiesComponent.setValue(optionId+"_active",  gitflowOptionsForm.isOptionActive(optionId));
+                propertiesComponent.setValue(optionId + "_active", gitflowOptionsForm.isOptionActive(optionId));
 
                 // set text value, if relevant
-                if (optionMap.get("inputText") != null){
-                    propertiesComponent.setValue(optionId+"_text",  gitflowOptionsForm.getOptionText(optionId));
+                if (optionMap.get("inputText") != null) {
+                    propertiesComponent.setValue(optionId + "_text", gitflowOptionsForm.getOptionText(optionId));
                 }
-
             }
         }
-
     }
 
     @Override
+    @RequiredUIAccess
     public void reset() {
         // iterate over branch types (feature/release/hotfix/bugfix)
-        for (GitflowOptionsFactory.TYPE type: GitflowOptionsFactory.TYPE.values()) {
+        for (GitflowOptionsFactory.TYPE type : GitflowOptionsFactory.TYPE.values()) {
             for (Map<String, String> optionMap : gitflowOptions.get(type)) {
                 String optionId = GitflowOptionsFactory.getOptionId(type, optionMap.get("key"));
-                boolean savedOptionIsActive = propertiesComponent.getBoolean(optionId+"_active");
+                boolean savedOptionIsActive = propertiesComponent.getBoolean(optionId + "_active");
                 gitflowOptionsForm.setOptionActive(optionId, savedOptionIsActive);
 
                 // option has text value
-                if (optionMap.get("inputText") != null){
-                    String textInForm = gitflowOptionsForm.getOptionText(optionId);
-                    String savedOptionText = propertiesComponent.getValue(optionId+"text");
-                    if (savedOptionText == null){
+                if (optionMap.get("inputText") != null) {
+                    String savedOptionText = propertiesComponent.getValue(optionId + "text");
+                    if (savedOptionText == null) {
                         gitflowOptionsForm.setOptionText(optionId, optionMap.get("inputText"));
                     }
-                    else{
+                    else {
                         gitflowOptionsForm.setOptionText(optionId, savedOptionText);
                     }
-
                 }
-
             }
         }
         gitflowOptionsForm.updateFormDisabledStatus();
     }
 
     @Override
+    @RequiredUIAccess
     public void disposeUIResources() {
         gitflowOptionsForm = null;
     }
-
 }

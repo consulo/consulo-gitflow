@@ -2,14 +2,17 @@ package gitflow.actions;
 
 import consulo.ui.ex.action.AnActionEvent;
 import git4idea.repo.GitRepository;
-import org.jetbrains.annotations.NotNull;
+import jakarta.annotation.Nonnull;
 
 public abstract class AbstractBranchAction extends GitflowAction {
     enum BranchType {
-        Feature, Release, Bugfix, Hotfix
+        Feature,
+        Release,
+        Bugfix,
+        Hotfix
     }
 
-    BranchType type;
+    final BranchType type;
 
     AbstractBranchAction(String actionName, BranchType type) {
         super(actionName);
@@ -21,40 +24,30 @@ public abstract class AbstractBranchAction extends GitflowAction {
         this.type = type;
     }
 
-
     @Override
-    public void update(@NotNull AnActionEvent e) {
+    public void update(@Nonnull AnActionEvent e) {
         if (branchUtil == null) {
             e.getPresentation().setEnabledAndVisible(false);
             return;
         }
 
         //Disable and hide when gitflow has not been setup
-        if (branchUtil.hasGitflow() == false) {
+        if (!branchUtil.hasGitflow()) {
             e.getPresentation().setEnabledAndVisible(false);
             return;
         }
 
         //Disable and hide when the branch-type is incorrect
-        if (isActionAllowedForBranch() == false) {
-            e.getPresentation().setEnabledAndVisible(false);
-        } else {
-            e.getPresentation().setEnabledAndVisible(true);
-        }
+        e.getPresentation().setEnabledAndVisible(isActionAllowedForBranch());
     }
 
     protected boolean isActionAllowedForBranch() {
-        switch (type) {
-            case Feature:
-                return branchUtil.isCurrentBranchFeature();
-            case Release:
-                return branchUtil.isCurrentBranchRelease();
-            case Bugfix:
-                return branchUtil.isCurrentBranchBugfix();
-            case Hotfix:
-                return branchUtil.isCurrentBranchHotfix();
-            default:
-                return false;
-        }
+        return switch (type) {
+            case Feature -> branchUtil.isCurrentBranchFeature();
+            case Release -> branchUtil.isCurrentBranchRelease();
+            case Bugfix -> branchUtil.isCurrentBranchBugfix();
+            case Hotfix -> branchUtil.isCurrentBranchHotfix();
+            default -> false;
+        };
     }
 }

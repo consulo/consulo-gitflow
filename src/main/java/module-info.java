@@ -1,6 +1,6 @@
 /**
  * @author VISTALL
- * @since 05/02/2023
+ * @since 2023-05-02
  */
 open module consulo.gitflow {
     requires consulo.application.api;

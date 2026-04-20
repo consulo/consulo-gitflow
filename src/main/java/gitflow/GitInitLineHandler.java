@@ -7,31 +7,32 @@ import consulo.virtualFileSystem.VirtualFile;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
 import git4idea.util.GitVcsConsoleWriter;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
-
 public class GitInitLineHandler extends GitLineHandler {
     private final GitVcsConsoleWriter consoleWriter;
 
     private BufferedWriter writer;
-    GitflowInitOptions _initOptions;
+    final GitflowInitOptions myInitOptions;
 
-    public GitInitLineHandler(GitflowInitOptions initOptions,
-                              @NotNull Project project,
-                              @NotNull VirtualFile vcsRoot,
-                              @NotNull GitCommand command) {
+    public GitInitLineHandler(
+        GitflowInitOptions initOptions,
+        @Nonnull Project project,
+        @Nonnull VirtualFile vcsRoot,
+        @Nonnull GitCommand command
+    ) {
         super(project, vcsRoot, command);
         consoleWriter = GitVcsConsoleWriter.getInstance(project);
-        _initOptions = initOptions;
+        myInitOptions = initOptions;
     }
 
 //    @Override
-//    protected OSProcessHandler createProcess(@NotNull GeneralCommandLine commandLine) throws ExecutionException {
+//    protected OSProcessHandler createProcess(@Nonnull GeneralCommandLine commandLine) throws ExecutionException {
 //        return new MyOSProcessHandler(commandLine,
 //                this.myWithMediator && Registry
 //                        .is("git.execute.with.mediator"));
@@ -50,60 +51,60 @@ public class GitInitLineHandler extends GitLineHandler {
         super.onTextAvailable(s, key);
         try {
             if (s.contains("name for production releases")) {
-                consoleWriter.showCommandLine(_initOptions.getProductionBranch());
+                consoleWriter.showCommandLine(myInitOptions.getProductionBranch());
 
-                writer.write(_initOptions.getProductionBranch());
+                writer.write(myInitOptions.getProductionBranch());
                 writer.write("\n");
                 writer.flush();
             }
 
             if (s.contains("name for \"next release\"")) {
-                consoleWriter.showCommandLine(_initOptions.getDevelopmentBranch());
+                consoleWriter.showCommandLine(myInitOptions.getDevelopmentBranch());
 
-                writer.write(_initOptions.getDevelopmentBranch());
+                writer.write(myInitOptions.getDevelopmentBranch());
                 writer.write("\n");
                 writer.flush();
             }
 
             if (s.contains("Feature branches")) {
-                consoleWriter.showCommandLine(_initOptions.getFeaturePrefix());
+                consoleWriter.showCommandLine(myInitOptions.getFeaturePrefix());
 
-                writer.write(_initOptions.getFeaturePrefix());
+                writer.write(myInitOptions.getFeaturePrefix());
                 writer.write("\n");
                 writer.flush();
             }
             if (s.contains("Bugfix branches")) {
-                consoleWriter.showCommandLine(_initOptions.getBugfixPrefix());
+                consoleWriter.showCommandLine(myInitOptions.getBugfixPrefix());
 
-                writer.write(_initOptions.getBugfixPrefix());
+                writer.write(myInitOptions.getBugfixPrefix());
                 writer.write("\n");
                 writer.flush();
             }
             if (s.contains("Release branches")) {
-                consoleWriter.showCommandLine(_initOptions.getReleasePrefix());
+                consoleWriter.showCommandLine(myInitOptions.getReleasePrefix());
 
-                writer.write(_initOptions.getReleasePrefix());
+                writer.write(myInitOptions.getReleasePrefix());
                 writer.write("\n");
                 writer.flush();
             }
             if (s.contains("Hotfix branches")) {
-                consoleWriter.showCommandLine(_initOptions.getHotfixPrefix());
+                consoleWriter.showCommandLine(myInitOptions.getHotfixPrefix());
 
-                writer.write(_initOptions.getHotfixPrefix());
+                writer.write(myInitOptions.getHotfixPrefix());
                 writer.write("\n");
                 writer.flush();
             }
             if (s.contains("Support branches")) {
-                consoleWriter.showCommandLine(_initOptions.getSupportPrefix());
+                consoleWriter.showCommandLine(myInitOptions.getSupportPrefix());
 
-                writer.write(_initOptions.getSupportPrefix());
+                writer.write(myInitOptions.getSupportPrefix());
                 writer.write("\n");
                 writer.flush();
             }
             if (s.contains("Version tag")) {
-                consoleWriter.showCommandLine(_initOptions.getVersionPrefix());
+                consoleWriter.showCommandLine(myInitOptions.getVersionPrefix());
 
-                writer.write(_initOptions.getVersionPrefix());
+                writer.write(myInitOptions.getVersionPrefix());
                 writer.write("\n");
                 writer.flush();
             }
@@ -113,13 +114,14 @@ public class GitInitLineHandler extends GitLineHandler {
             }
 
 
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
     }
 
 //    class MyOSProcessHandler extends GitTextHandler.MyOSProcessHandler {
-//        MyOSProcessHandler(@NotNull GeneralCommandLine commandLine,
+//        MyOSProcessHandler(@Nonnull GeneralCommandLine commandLine,
 //                boolean withMediator) throws ExecutionException {
 //            super(commandLine, withMediator);
 //        }

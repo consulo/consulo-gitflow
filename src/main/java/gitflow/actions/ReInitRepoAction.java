@@ -4,7 +4,7 @@ import consulo.ui.ex.action.AnActionEvent;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
 import gitflow.GitflowInitOptions;
-import org.jetbrains.annotations.NotNull;
+import jakarta.annotation.Nonnull;
 
 public class ReInitRepoAction extends InitRepoAction {
     ReInitRepoAction() {
@@ -16,15 +16,11 @@ public class ReInitRepoAction extends InitRepoAction {
     }
 
     @Override
-    public void update(@NotNull AnActionEvent e) {
+    public void update(@Nonnull AnActionEvent e) {
         gitflow.GitflowBranchUtil branchUtil = gitflow.GitflowBranchUtilManager.getBranchUtil(myRepo);
 
         // Only show when gitflow is setup
-        if (branchUtil !=null && branchUtil.hasGitflow()) {
-            e.getPresentation().setEnabledAndVisible(true);
-        } else {
-            e.getPresentation().setEnabledAndVisible(false);
-        }
+        e.getPresentation().setEnabledAndVisible(branchUtil != null && branchUtil.hasGitflow());
     }
 
     @Override
@@ -33,9 +29,11 @@ public class ReInitRepoAction extends InitRepoAction {
     }
 
     @Override
-    protected GitCommandResult executeCommand(GitflowInitOptions initOptions,
-            GitflowErrorsListener errorLineHandler,
-            GitflowLineHandler localLineHandler) {
+    protected GitCommandResult executeCommand(
+        GitflowInitOptions initOptions,
+        GitflowErrorsListener errorLineHandler,
+        GitflowLineHandler localLineHandler
+    ) {
         return myGitflow.reInitRepo(myRepo, initOptions, errorLineHandler, localLineHandler);
     }
 

@@ -5,11 +5,11 @@ import git4idea.repo.GitRepository;
 import gitflow.GitflowConfigUtil;
 
 public class GitflowStartHotfixDialog extends AbstractBranchStartDialog {
-
     public GitflowStartHotfixDialog(Project project, GitRepository repo) {
         super(project, repo);
     }
 
+    @Override
     protected boolean showBranchFromCombo(){
         return false;
     }

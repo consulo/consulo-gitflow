@@ -2,24 +2,25 @@ package gitflow.actions;
 
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
+import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.awt.Messages;
+import consulo.ui.ex.awt.UIUtil;
 import git4idea.branch.GitBranchUtil;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
 import gitflow.GitflowConfigUtil;
 import gitflow.GitflowConfigurable;
 import gitflow.ui.NotifyUtil;
-import org.jetbrains.annotations.NotNull;
+import jakarta.annotation.Nonnull;
 
 public class FinishReleaseAction extends AbstractBranchAction {
-
     String customReleaseName = null;
-    String customtagMessage = null;
+    String customTagMessage = null;
 
     FinishReleaseAction() {
-        super("Finish Release", AbstractBranchAction.BranchType.Release);
+        super("Finish Release", BranchType.Release);
     }
 
     FinishReleaseAction(GitRepository repo) {
@@ -29,11 +30,12 @@ public class FinishReleaseAction extends AbstractBranchAction {
     FinishReleaseAction(String name, String tagMessage) {
         super("Finish Release", BranchType.Release);
         customReleaseName = name;
-        customtagMessage = tagMessage;
+        customTagMessage = tagMessage;
     }
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
+    @RequiredUIAccess
+    public void actionPerformed(@Nonnull AnActionEvent e) {
         super.actionPerformed(e);
 
         String currentBranchName = GitBranchUtil.getBranchNameOrRev(myRepo);
@@ -51,7 +53,8 @@ public class FinishReleaseAction extends AbstractBranchAction {
 
             final GitflowErrorsListener errorLineHandler = new GitflowErrorsListener(myProject);
 
-            String tagMessageTemplate = GitflowConfigurable.getOptionTextString(myProject, "RELEASE_customTagCommitMessage").replace("%name%", releaseName);
+            String tagMessageTemplate =
+                GitflowConfigurable.getOptionTextString(myProject, "RELEASE_customTagCommitMessage").replace("%name%", releaseName);
             String tagMessageDraft;
 
             boolean cancelAction = false;
@@ -59,12 +62,19 @@ public class FinishReleaseAction extends AbstractBranchAction {
             if (GitflowConfigurable.isOptionActive(myProject, "RELEASE_dontTag")) {
                 tagMessage = "";
             }
-            else if (customtagMessage != null) {
+            else if (customTagMessage != null) {
                 //probably repeating the release finish after a merge
-                tagMessage = customtagMessage;
+                tagMessage = customTagMessage;
             }
             else {
-                tagMessageDraft = Messages.showInputDialog(myProject, "Enter the tag message:", "Finish Release", Messages.getQuestionIcon(), tagMessageTemplate, null);
+                tagMessageDraft = Messages.showInputDialog(
+                    myProject,
+                    "Enter the tag message:",
+                    "Finish Release",
+                    UIUtil.getQuestionIcon(),
+                    tagMessageTemplate,
+                    null
+                );
                 if (tagMessageDraft == null) {
                     cancelAction = true;
                     tagMessage = "";
@@ -74,37 +84,44 @@ public class FinishReleaseAction extends AbstractBranchAction {
                 }
             }
 
-
             if (!cancelAction) {
-
                 new Task.Backgroundable(myProject, "Finishing release " + releaseName, false) {
                     @Override
-                    public void run(@NotNull ProgressIndicator indicator) {
+                    public void run(@Nonnull ProgressIndicator indicator) {
                         GitCommandResult result = myGitflow.finishRelease(myRepo, releaseName, tagMessage, errorLineHandler);
 
                         if (result.success()) {
-                            String finishedReleaseMessage = String.format("The release branch '%s%s' was merged into '%s' and '%s'", branchUtil.getPrefixRelease(), releaseName, branchUtil.getBranchnameDevelop(), branchUtil.getBranchnameMaster());
+                            String finishedReleaseMessage = String.format(
+                                "The release branch '%s%s' was merged into '%s' and '%s'",
+                                branchUtil.getPrefixRelease(),
+                                releaseName,
+                                branchUtil.getBranchnameDevelop(),
+                                branchUtil.getBranchnameMaster()
+                            );
                             NotifyUtil.notifySuccess(myProject, releaseName, finishedReleaseMessage);
                         }
                         else if (errorLineHandler.hasMergeError) {
                             // (merge errors are handled in the onSuccess handler)
                         }
                         else {
-                            NotifyUtil.notifyError(myProject, "Error", "Please have a look at the Version Control console for more details");
+                            NotifyUtil.notifyError(
+                                myProject,
+                                "Error",
+                                "Please have a look at the Version Control console for more details"
+                            );
                         }
 
                         myRepo.update();
-
                     }
 
-                    @RequiredUIAccess
                     @Override
+                    @RequiredUIAccess
                     public void onSuccess() {
                         super.onSuccess();
 
                         //merge conflicts if necessary
                         if (errorLineHandler.hasMergeError) {
-                            if (handleMerge((consulo.project.Project) myProject)) {
+                            if (handleMerge((Project) myProject)) {
                                 FinishReleaseAction completeFinisReleaseAction = new FinishReleaseAction(releaseName, tagMessage);
                                 completeFinisReleaseAction.actionPerformed(event);
                             }
@@ -112,10 +129,7 @@ public class FinishReleaseAction extends AbstractBranchAction {
                     }
 
                 }.queue();
-
             }
         }
-
     }
-
 }

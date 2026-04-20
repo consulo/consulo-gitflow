@@ -5,7 +5,6 @@ import git4idea.repo.GitRepository;
 import gitflow.GitflowConfigUtil;
 
 public class GitflowStartFeatureDialog extends AbstractBranchStartDialog {
-
     public GitflowStartFeatureDialog(Project project, GitRepository repo) {
         super(project, repo);
     }

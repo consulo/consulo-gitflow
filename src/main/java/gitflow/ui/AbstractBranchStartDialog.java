@@ -1,6 +1,7 @@
 package gitflow.ui;
 
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.ValidationInfo;
 import git4idea.repo.GitRepository;
@@ -16,7 +17,6 @@ import javax.swing.event.DocumentListener;
  * and select a base branch. See {@link GitflowStartFeatureDialog} for an example implementation.
  */
 public abstract class AbstractBranchStartDialog extends DialogWrapper {
-
     private JPanel contentPane;
     private JTextField branchNameTextField;
     private JComboBox branchFromCombo;
@@ -24,64 +24,70 @@ public abstract class AbstractBranchStartDialog extends DialogWrapper {
     private JLabel spacesLabel;
     private JLabel branchFromTitle;
 
-    private Project project;
-    protected GitRepository myRepo;
-    private GitflowBranchUtil gitflowBranchUtil;
+    private final Project project;
+    protected final GitRepository myRepo;
+    private final GitflowBranchUtil myGitflowBranchUtil;
 
     public AbstractBranchStartDialog(Project project, GitRepository repo) {
         super(project, false);
         this.project = project;
         this.myRepo = repo;
-        this.gitflowBranchUtil = GitflowBranchUtilManager.getBranchUtil(repo);
+        this.myGitflowBranchUtil = GitflowBranchUtilManager.getBranchUtil(repo);
 
         init();
-        final String label = getLabel();
+        String label = getLabel();
         setTitle("New " + label + "...");
         branchNameLabel.setText(String.format("Enter a name for the new %s...", label));
         setModal(true);
 
         //set the base branch combo
-        branchFromCombo.setModel(gitflowBranchUtil.createBranchComboModel(getDefaultBranch()));
+        branchFromCombo.setModel(myGitflowBranchUtil.createBranchComboModel(getDefaultBranch()));
 
         branchNameTextField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
             public void changedUpdate(DocumentEvent e) {
                 validateBranchName();
             }
+
+            @Override
             public void removeUpdate(DocumentEvent e) {
                 validateBranchName();
             }
+
+            @Override
             public void insertUpdate(DocumentEvent e) {
                 validateBranchName();
             }
 
             public void validateBranchName() {
-                if (branchNameTextField.getText().contains(" ")){
+                if (branchNameTextField.getText().contains(" ")) {
                     spacesLabel.setVisible(true);
                 }
-                else{
+                else {
                     spacesLabel.setVisible(false);
                 }
 
-                if (branchNameTextField.getText().contains("&")){
+                if (branchNameTextField.getText().contains("&")) {
                     AbstractBranchStartDialog.super.setOKActionEnabled(false);
                 }
-                else{
+                else {
                     AbstractBranchStartDialog.super.setOKActionEnabled(true);
                 }
             }
         });
 
-        if (showBranchFromCombo() == false){
+        if (!showBranchFromCombo()) {
             branchFromTitle.setVisible(false);
             branchFromCombo.setVisible(false);
         }
     }
 
-    protected boolean showBranchFromCombo(){
+    protected boolean showBranchFromCombo() {
         return true;
     }
 
     @Override
+    @RequiredUIAccess
     public JComponent getPreferredFocusedComponent() {
         return branchNameTextField;
     }
@@ -119,11 +125,13 @@ public abstract class AbstractBranchStartDialog extends DialogWrapper {
     }
 
     @Override
+    @RequiredUIAccess
     protected ValidationInfo doValidate() {
         boolean isBranchNameSpecified = branchNameTextField.getText().trim().length() > 0;
         if (!isBranchNameSpecified) {
             return new ValidationInfo("No name specified", branchNameTextField);
-        } else {
+        }
+        else {
             return null;
         }
     }

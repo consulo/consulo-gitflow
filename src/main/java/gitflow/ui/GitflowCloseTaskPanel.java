@@ -14,7 +14,7 @@ import gitflow.GitflowState;
 import gitflow.actions.FinishBugfixAction;
 import gitflow.actions.FinishFeatureAction;
 import gitflow.actions.FinishHotfixAction;
-import org.jetbrains.annotations.NotNull;
+import jakarta.annotation.Nonnull;
 
 import javax.swing.*;
 
@@ -28,17 +28,17 @@ public class GitflowCloseTaskPanel extends TaskDialogPanel {
     private JPanel finishBugfixPanel;
     private JCheckBox finishBugfixCheckBox;
 
-    private Project myProject;
-    private Task myTask;
-    private GitRepository myRepo;
-    private GitflowBranchUtil gitflowBranchUtil;
-    private TaskManager myTaskManager;
+    private final Project myProject;
+    private final Task myTask;
+    private final GitRepository myRepo;
+    private final GitflowBranchUtil gitflowBranchUtil;
+    private final TaskManager myTaskManager;
     private VcsTaskHandler myVcsTaskHandler;
-    private String tagMessage;
+    private final String tagMessage;
 
     final private GitflowState gitflowState;
 
-    GitflowCloseTaskPanel(Project project, Task task, GitRepository repo){
+    GitflowCloseTaskPanel(Project project, Task task, GitRepository repo) {
         myProject = project;
         myTask = task;
         myRepo = repo;
@@ -46,33 +46,30 @@ public class GitflowCloseTaskPanel extends TaskDialogPanel {
 
         gitflowBranchUtil = GitflowBranchUtilManager.getBranchUtil(myRepo);
         myTaskManager = TaskManager.getManager(project);
-        VcsTaskHandler[] vcsTaskHAndlers = VcsTaskHandler.getAllHandlers(project);
-        if (vcsTaskHAndlers.length > 0){
+        VcsTaskHandler[] vcsTaskHandlers = VcsTaskHandler.getAllHandlers(project);
+        if (vcsTaskHandlers.length > 0) {
             //todo handle case of multiple vcs handlers
-            myVcsTaskHandler = vcsTaskHAndlers[0];
+            myVcsTaskHandler = vcsTaskHandlers[0];
         }
-
 
         String branchName = myVcsTaskHandler != null
-                ? myVcsTaskHandler.cleanUpBranchName(myTaskManager.constructDefaultBranchName(task))
-                : myTaskManager.suggestBranchName(task);
-        
+            ? myVcsTaskHandler.cleanUpBranchName(myTaskManager.constructDefaultBranchName(task))
+            : myTaskManager.suggestBranchName(task);
+
         if (GitflowConfigurable.isOptionActive(project, "HOTFIX_dontTag")) {
-            tagMessage="";
+            tagMessage = "";
             tagMessageTextField.setEnabled(false);
             tagMessageTextField.setToolTipText("Hotfix tagging is disabled in Gitflow options");
-
         }
-        else{
+        else {
             tagMessage = GitflowConfigurable.getOptionTextString(project, "HOTFIX_customHotfixCommitMessage").replace("%name%", branchName);
             tagMessageTextField.setToolTipText(null);
         }
 
         tagMessageTextField.setText(tagMessage);
-
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public JComponent getPanel() {
         String taskBranchName = gitflowState.getTaskBranch(myTask);
@@ -82,17 +79,19 @@ public class GitflowCloseTaskPanel extends TaskDialogPanel {
                 finishFeaturePanel.setVisible(true);
                 finishHotfixPanel.setVisible(false);
                 finishBugfixPanel.setVisible(false);
-            } else if (gitflowBranchUtil.isBranchHotfix(taskBranchName)) {
+            }
+            else if (gitflowBranchUtil.isBranchHotfix(taskBranchName)) {
                 finishFeaturePanel.setVisible(false);
                 finishHotfixPanel.setVisible(true);
                 finishBugfixPanel.setVisible(false);
-            } else if (gitflowBranchUtil.isBranchBugfix(taskBranchName)) {
+            }
+            else if (gitflowBranchUtil.isBranchBugfix(taskBranchName)) {
                 finishFeaturePanel.setVisible(false);
                 finishHotfixPanel.setVisible(false);
                 finishBugfixPanel.setVisible(true);
             }
         }
-        else{
+        else {
             myPanel.setVisible(false);
         }
 
@@ -110,10 +109,12 @@ public class GitflowCloseTaskPanel extends TaskDialogPanel {
             if (finishFeatureCheckbox.isSelected()) {
                 FinishFeatureAction action = new FinishFeatureAction(myRepo);
                 action.runAction(myProject, taskBranchName);
-            } else if (finishHotfixCheckbox.isSelected()) {
+            }
+            else if (finishHotfixCheckbox.isSelected()) {
                 FinishHotfixAction action = new FinishHotfixAction(myRepo);
                 action.runAction(myProject, taskBranchName, tagMessageTextField.getText());
-             } else if (finishBugfixCheckBox.isSelected()) {
+            }
+            else if (finishBugfixCheckBox.isSelected()) {
                 FinishBugfixAction action = new FinishBugfixAction(myRepo);
                 action.runAction(myProject, taskBranchName);
             }

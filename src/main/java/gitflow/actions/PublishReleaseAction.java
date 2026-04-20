@@ -2,38 +2,40 @@ package gitflow.actions;
 
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
 import gitflow.GitflowConfigUtil;
 import gitflow.ui.NotifyUtil;
-import org.jetbrains.annotations.NotNull;
+import jakarta.annotation.Nonnull;
 
 public class PublishReleaseAction extends AbstractPublishAction {
-
-    PublishReleaseAction(){
+    PublishReleaseAction() {
         super("Publish Release", BranchType.Release);
     }
 
-    PublishReleaseAction(GitRepository repo){
-        super(repo,"Publish Release", BranchType.Release);
+    PublishReleaseAction(GitRepository repo) {
+        super(repo, "Publish Release", BranchType.Release);
     }
 
     @Override
-    public void actionPerformed(AnActionEvent anActionEvent) {
-        super.actionPerformed(anActionEvent);
+    @RequiredUIAccess
+    public void actionPerformed(@Nonnull AnActionEvent e) {
+        super.actionPerformed(e);
 
         GitflowConfigUtil gitflowConfigUtil = GitflowConfigUtil.getInstance(myProject, myRepo);
-        final String releaseName= gitflowConfigUtil.getReleaseNameFromBranch(branchUtil.getCurrentBranchName());
+        final String releaseName = gitflowConfigUtil.getReleaseNameFromBranch(branchUtil.getCurrentBranchName());
         final GitflowErrorsListener errorLineHandler = new GitflowErrorsListener(myProject);
 
-        new Task.Backgroundable(myProject,"Publishing release "+releaseName,false){
+        new Task.Backgroundable(myProject, "Publishing release " + releaseName, false) {
             @Override
-            public void run(@NotNull ProgressIndicator indicator) {
+            public void run(@Nonnull ProgressIndicator indicator) {
                 GitCommandResult result = myGitflow.publishRelease(myRepo, releaseName, errorLineHandler);
 
                 if (result.success()) {
-                    String publishedReleaseMessage = String.format("A new remote branch '%s%s' was created", branchUtil.getPrefixRelease(), releaseName);
+                    String publishedReleaseMessage =
+                        String.format("A new remote branch '%s%s' was created", branchUtil.getPrefixRelease(), releaseName);
                     NotifyUtil.notifySuccess(myProject, releaseName, publishedReleaseMessage);
                 }
                 else {
@@ -43,6 +45,5 @@ public class PublishReleaseAction extends AbstractPublishAction {
                 myRepo.update();
             }
         }.queue();
-
     }
 }
