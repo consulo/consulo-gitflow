@@ -1,10 +1,11 @@
 package gitflow.actions;
 
 import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.AnActionWithSyncUpdate;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class AbstractBranchAction extends GitflowAction {
+public abstract class AbstractBranchAction extends GitflowAction implements AnActionWithSyncUpdate {
     enum BranchType {
         Feature, Release, Bugfix, Hotfix
     }

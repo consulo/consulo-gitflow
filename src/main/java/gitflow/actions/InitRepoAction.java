@@ -3,6 +3,7 @@ package gitflow.actions;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
 import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.AnActionWithSyncUpdate;
 import consulo.util.dataholder.Key;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
@@ -14,7 +15,7 @@ import gitflow.ui.GitflowInitOptionsDialog;
 import gitflow.ui.NotifyUtil;
 import org.jetbrains.annotations.NotNull;
 
-public class InitRepoAction extends GitflowAction {
+public class InitRepoAction extends GitflowAction implements AnActionWithSyncUpdate {
 
     InitRepoAction() {
         this( "Init Repo");
