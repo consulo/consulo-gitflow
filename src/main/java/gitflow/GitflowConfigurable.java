@@ -5,9 +5,12 @@ import consulo.component.PropertiesComponent;
 import consulo.configurable.ConfigurationException;
 import consulo.configurable.ProjectConfigurable;
 import consulo.configurable.StandardConfigurableIds;
+import consulo.disposer.Disposable;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.project.ProjectPropertiesComponent;
+import consulo.ui.Component;
+import consulo.ui.ex.awtUnsafe.TargetAWT;
 import gitflow.ui.GitflowOptionsForm;
 import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
@@ -64,9 +67,9 @@ public class GitflowConfigurable implements ProjectConfigurable {
 
     @Nullable
     @Override
-    public JComponent createComponent() {
+    public Component createUIComponent(Disposable parentDisposable) {
         gitflowOptionsForm = new GitflowOptionsForm();
-        return gitflowOptionsForm.getContentPane();
+        return TargetAWT.wrap(gitflowOptionsForm.getContentPane());
     }
 
     public static boolean isOptionActive(Project project, String optionId){
