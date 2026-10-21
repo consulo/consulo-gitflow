@@ -5,6 +5,7 @@ import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.project.ui.notification.NotificationDisplayType;
 import consulo.project.ui.notification.NotificationGroup;
+import consulo.project.ui.notification.NotificationService;
 import consulo.project.ui.notification.NotificationType;
 import consulo.project.ui.wm.ToolWindowId;
 
@@ -17,7 +18,7 @@ public class NotifyUtil {
             "gitflow.notifications", LocalizeValue.localizeTODO("Gitflow Notifications"), NotificationDisplayType.BALLOON, true);
 
     public static void notifySuccess(ComponentManager project, String title, String message) {
-        notify(NotificationType.INFORMATION, BALLOON_NOTIFICATION, project, title, message);
+        notify(NotificationType.SUCCESS, BALLOON_NOTIFICATION, project, title, message);
     }
 
     public static void notifyInfo(ComponentManager project, String title, String message) {
@@ -33,6 +34,10 @@ public class NotifyUtil {
     }
 
     private static void notify(NotificationType type, NotificationGroup group, ComponentManager project, String title, String message) {
-        group.createNotification(title, message, type, null).notify((Project) project);
+        NotificationService.getInstance()
+            .newOfType(group, type)
+            .title(LocalizeValue.of(title))
+            .content(LocalizeValue.ofNullable(message))
+            .notify((Project) project);
     }
 }

@@ -2,6 +2,10 @@ package gitflow.actions;
 
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
+import consulo.localize.LocalizeValue;
+import consulo.ui.InputBoxBuilder;
+import consulo.ui.UIAccess;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.awt.Messages;
 import git4idea.commands.GitCommandResult;
@@ -24,14 +28,25 @@ public class StartReleaseAction extends AbstractStartAction {
     public void actionPerformed(AnActionEvent e) {
         super.actionPerformed(e);
 
-        final String releaseName = Messages.showInputDialog(myProject, "Enter the name of new release:", "New Release", Messages.getQuestionIcon(), "",
-                GitNewBranchNameValidator.newInstance(repos));
+        InputBoxBuilder.text()
+            .asQuestion()
+            .title(LocalizeValue.localizeTODO("New Release"))
+            .text(LocalizeValue.localizeTODO("Enter the name of new release:"))
+            .value("")
+            .validator(GitNewBranchNameValidator.newInstance(repos))
+            .showAsync(myProject)
+            .whenCompleteAsync((releaseName, error) -> {
+                if (releaseName != null) {
+                    startRelease(releaseName);
+                }
+            }, UIAccess.current());
+    }
+
+    @RequiredUIAccess
+    private void startRelease(String releaseName) {
         final GitflowErrorsListener errorLineHandler = new GitflowErrorsListener(myProject);
 
-        if (releaseName == null){
-            // user clicked cancel
-        }
-        else if (releaseName.isEmpty()){
+        if (releaseName.isEmpty()){
             Messages.showWarningDialog(myProject, "You must provide a name for the release", "Whoops");
         }
         else {

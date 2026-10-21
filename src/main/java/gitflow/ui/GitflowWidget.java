@@ -16,9 +16,6 @@
 package gitflow.ui;
 
 import consulo.application.Application;
-import consulo.application.ui.wm.ApplicationIdeFocusManager;
-import consulo.application.ui.wm.FocusableFrame;
-import consulo.application.ui.wm.IdeFocusManager;
 import consulo.dataContext.DataContext;
 import consulo.dataContext.DataManager;
 import consulo.fileEditor.FileEditorManager;
@@ -31,7 +28,6 @@ import consulo.project.ui.wm.StatusBarWidget;
 import consulo.project.ui.wm.StatusBarWidgetFactory;
 import consulo.project.ui.wm.WindowManager;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.ex.RelativePoint;
 import consulo.ui.ex.awt.MessageDialogBuilder;
 import consulo.ui.ex.awt.Messages;
 import consulo.ui.ex.popup.JBPopupFactory;
@@ -48,23 +44,19 @@ import git4idea.ui.branch.GitBranchWidget;
 import gitflow.GitflowBranchUtil;
 import gitflow.GitflowBranchUtilManager;
 import gitflow.GitflowVersionTester;
-import gitflow.IDEAUtils;
 import gitflow.actions.GitflowPopupGroup;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.MouseEvent;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * Status bar widget which displays actions for git flow
  *
  * @author Kirill Likhodedov, Opher Vishnia, Alexander von Bremen-Kühne
  */
-public class GitflowWidget extends GitBranchWidget implements GitRepositoryChangeListener, StatusBarWidget.TextPresentation {
+public class GitflowWidget extends GitBranchWidget implements GitRepositoryChangeListener {
     private volatile String myText = "";
     @Nonnull
     private volatile LocalizeValue myTooltip = LocalizeValue.empty();
@@ -79,7 +71,7 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
 
     @Override
     public StatusBarWidget copy() {
-        return new GitBranchWidget(getProject(), myFactory);
+        return new GitflowWidget(getProject(), myFactory);
     }
 
     @Override
@@ -110,29 +102,34 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
 
     @Nullable
     @Override
-    public ListPopup getPopupStep() {
-        Project project = IDEAUtils.getActiveProject();
-
-        if (project == null) {
-            return null;
-        }
-        GitRepository repo = GitBranchUtil.getCurrentRepository(project);
-        if (repo == null) {
+    @RequiredUIAccess
+    public ListPopup getPopupStep(@Nonnull DataContext dataContext) {
+        if (!getIsSupportedVersion()) {
+            showUnsupportedVersionDialog();
             return null;
         }
 
-        Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
-        if (focusOwner == null) {
-            IdeFocusManager focusManager = ApplicationIdeFocusManager.getInstance().getInstanceForProject(project);
-            FocusableFrame frame = focusManager.getLastFocusedFrame();
-            if (frame != null) {
-                focusOwner = focusManager.getLastFocusedFor(frame);
-            }
+        GitRepository repo = GitBranchUtil.getCurrentRepository(getProject());
+        GitflowPopupGroup group = popupGroup;
+        if (repo == null || group == null) {
+            return null;
         }
 
-        DataContext dataContext = DataManager.getInstance().getDataContext(focusOwner);
         return JBPopupFactory.getInstance()
-            .createActionGroupPopup("Gitflow Actions", popupGroup.getActionGroup(), dataContext, false, false, true, null, -1, null);
+            .createActionGroupPopup("Gitflow Actions", group.getActionGroup(), dataContext, false, false, true, null, -1, null);
+    }
+
+    @RequiredUIAccess
+    private static void showUnsupportedVersionDialog() {
+        MessageDialogBuilder.YesNo builder = MessageDialogBuilder.yesNo(
+                "Unsupported Git Flow version",
+                "The Git Flow CLI version installed isn't supported by the Git Flow Integration plugin"
+            )
+            .yesText("More information (open browser)")
+            .noText("no");
+        if (builder.show() == Messages.OK) {
+            Platform.current().openInBrowser("https://github.com/OpherV/gitflow4idea/blob/develop/GITFLOW_VERSION.md");
+        }
     }
 
     @Nonnull
@@ -154,40 +151,12 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
         return myTooltip;
     }
 
-    @Nonnull
-    @Override
-    public Consumer<MouseEvent> getClickConsumer() {
-        return mouseEvent -> {
-            if (getIsSupportedVersion()) {
-                ListPopup popup = getPopupStep();
-                if (popup == null) {
-                    return;
-                }
-                Dimension dimension = popup.getContent().getPreferredSize();
-                Point at = new Point(0, -dimension.height);
-                popup.show(new RelativePoint(mouseEvent.getComponent(), at));
-            }
-            else {
-                MessageDialogBuilder.YesNo builder = MessageDialogBuilder.yesNo(
-                        "Unsupported Git Flow version",
-                        "The Git Flow CLI version installed isn't supported by the Git Flow Integration plugin"
-                    )
-                    .yesText("More information (open browser)")
-                    .noText("no");
-                if (builder.show() == Messages.OK) {
-                    Platform.current().openInBrowser("https://github.com/OpherV/gitflow4idea/blob/develop/GITFLOW_VERSION.md");
-                }
-            }
-        };
-
-    }
-
     public void updateAsync() {
         Application.get().invokeLater(() -> {
             update();
 
             if (myStatusBar != null) {
-                myStatusBar.updateWidget(ID());
+                myStatusBar.updateWidget(getId());
             }
         });
     }
@@ -254,24 +223,13 @@ public class GitflowWidget extends GitBranchWidget implements GitRepositoryChang
      *
      * @param frame The frame that will be used for display
      */
+    @RequiredUIAccess
     public void showPopupInCenterOf(@Nonnull JFrame frame) {
         update();
-        ListPopup popupStep = getPopupStep();
+        ListPopup popupStep = getPopupStep(DataManager.getInstance().getDataContext(frame));
         if (popupStep != null) {
             popupStep.showInCenterOf(frame);
         }
-    }
-
-    @Nonnull
-    @Override
-    @RequiredUIAccess
-    public String getText() {
-        return getSelectedValue();
-    }
-
-    @Override
-    public float getAlignment() {
-        return 0;
     }
 
     public boolean getIsSupportedVersion() {
