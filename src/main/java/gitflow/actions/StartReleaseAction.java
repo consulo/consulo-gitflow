@@ -10,7 +10,7 @@ import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.awt.Messages;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
-import git4idea.validators.GitNewBranchNameValidator;
+import git4idea.validators.GitBranchValidator;
 import gitflow.ui.NotifyUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,7 +33,7 @@ public class StartReleaseAction extends AbstractStartAction {
             .title(LocalizeValue.localizeTODO("New Release"))
             .text(LocalizeValue.localizeTODO("Enter the name of new release:"))
             .value("")
-            .validator(GitNewBranchNameValidator.newInstance(repos))
+            .validator(input -> GitBranchValidator.validateName(repos, input))
             .showAsync(myProject)
             .whenCompleteAsync((releaseName, error) -> {
                 if (releaseName != null) {
