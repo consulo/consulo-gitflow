@@ -11,15 +11,15 @@ import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
 import gitflow.GitflowBranchUtil;
 import gitflow.GitflowBranchUtilManager;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import consulo.ui.annotation.RequiredUIAccess;
+import org.jspecify.annotations.Nullable;
 
 @ExtensionImpl
 public class GitflowTaskDialogPanelProvider extends TaskDialogPanelProvider {
 
-    @Nullable
+    @RequiredUIAccess
     @Override
-    public TaskDialogPanel getOpenTaskPanel(@NotNull Project project, @NotNull Task task) {
+    public @Nullable TaskDialogPanel getOpenTaskPanel(Project project, Task task) {
         GitRepository currentRepo = GitBranchUtil.getCurrentRepository(project);
         GitflowBranchUtil branchUtil = GitflowBranchUtilManager.getBranchUtil(currentRepo);
         if (branchUtil.hasGitflow()) {
@@ -30,9 +30,9 @@ public class GitflowTaskDialogPanelProvider extends TaskDialogPanelProvider {
         }
     }
 
-    @Nullable
+    @RequiredUIAccess
     @Override
-    public TaskDialogPanel getCloseTaskPanel(@NotNull Project project, @NotNull LocalTask task) {
+    public @Nullable TaskDialogPanel getCloseTaskPanel(Project project, LocalTask task) {
         GitRepository currentRepo = GitBranchUtil.getCurrentRepository(project);
         GitflowBranchUtil branchUtil = GitflowBranchUtilManager.getBranchUtil(currentRepo);
 

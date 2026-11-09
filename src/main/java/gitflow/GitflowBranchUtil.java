@@ -248,17 +248,22 @@ public class GitflowBranchUtil {
     }
 
     public ComboBoxModel createBranchComboModel(String defaultBranch) {
+        return new DefaultComboBoxModel(createBranchComboEntries(defaultBranch).toArray(new ComboEntry[0]));
+    }
+
+    /**
+     * The local branches with {@code defaultBranch} first, marked as the default
+     */
+    public List<ComboEntry> createBranchComboEntries(String defaultBranch) {
         final List<String> branchList = this.getLocalBranchNames();
         branchList.remove(defaultBranch);
 
-        ComboEntry[] entries = new ComboEntry[branchList.size() + 1];
-        entries[0] = new ComboEntry(defaultBranch, defaultBranch + " (default)");
-        for (int i = 1; i <= branchList.size(); i++) {
-            String branchName = branchList.get(i - 1);
-            entries[i] = new ComboEntry(branchName, branchName);
+        List<ComboEntry> entries = new ArrayList<>(branchList.size() + 1);
+        entries.add(new ComboEntry(defaultBranch, defaultBranch + " (default)"));
+        for (String branchName : branchList) {
+            entries.add(new ComboEntry(branchName, branchName));
         }
-
-        return new DefaultComboBoxModel(entries);
+        return entries;
     }
 
     /**

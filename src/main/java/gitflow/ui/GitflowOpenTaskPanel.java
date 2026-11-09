@@ -1,13 +1,23 @@
 package gitflow.ui;
 
 import consulo.ide.ServiceManager;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.task.LocalTask;
 import consulo.task.Task;
 import consulo.task.TaskManager;
 import consulo.task.ui.TaskDialogPanel;
+import consulo.ui.ComboBox;
+import consulo.ui.Component;
+import consulo.ui.Label;
+import consulo.ui.RadioButton;
+import consulo.ui.RadioGroup;
+import consulo.ui.Space;
+import consulo.ui.TextBox;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.layout.HorizontalLayout;
+import consulo.ui.util.FormBuilder;
 import consulo.versionControlSystem.VcsTaskHandler;
-import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
 import gitflow.GitflowBranchUtil;
 import gitflow.GitflowBranchUtilManager;
@@ -17,127 +27,148 @@ import gitflow.actions.GitflowAction;
 import gitflow.actions.StartBugfixAction;
 import gitflow.actions.StartFeatureAction;
 import gitflow.actions.StartHotfixAction;
-import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.Collections;
+import java.util.List;
 
 import static consulo.versionControlSystem.VcsTaskHandler.TaskInfo;
 
-public class GitflowOpenTaskPanel extends TaskDialogPanel implements ItemListener {
-    private JRadioButton noActionRadioButton;
-    private JRadioButton startFeatureRadioButton;
-    private JRadioButton startHotfixRadioButton;
-    private JTextField featureName;
-    private JComboBox featureBaseBranch;
-    private JTextField hotfixName;
-    private JPanel myPanel;
-    private JComboBox hotfixBaseBranch;
-    private JRadioButton startBugfixRadioButton;
-    private JTextField bugfixName;
-    private JComboBox bugfixBaseBranch;
+public class GitflowOpenTaskPanel extends TaskDialogPanel {
+    private enum Mode {
+        NONE,
+        FEATURE,
+        HOTFIX,
+        BUGFIX
+    }
 
-    private Project myProject;
-    private GitRepository myRepo;
-    private GitflowBranchUtil gitflowBranchUtil;
-    private TaskManager myTaskManager;
-    private VcsTaskHandler myVcsTaskHandler;
-    private LocalTask myPreviousTask;
-    private Task currentTask;
+    private final Project myProject;
+    private final GitRepository myRepo;
+    private final GitflowBranchUtil gitflowBranchUtil;
+    private final TaskManager myTaskManager;
+    private final Task currentTask;
+    private final GitflowState gitflowState;
 
-    private GitflowState gitflowState;
+    private final RadioGroup<Mode> myMode = RadioGroup.create();
 
+    private final TextBox featureName;
+    private final ComboBox<GitflowBranchUtil.ComboEntry> featureBaseBranch;
+    private final TextBox hotfixName;
+    private final ComboBox<GitflowBranchUtil.ComboEntry> hotfixBaseBranch;
+    private final TextBox bugfixName;
+    private final ComboBox<GitflowBranchUtil.ComboEntry> bugfixBaseBranch;
 
-    public GitflowOpenTaskPanel(Project project, Task task, GitRepository repo){
+    private final Component myComponent;
+
+    @RequiredUIAccess
+    public GitflowOpenTaskPanel(Project project, Task task, GitRepository repo) {
         myProject = project;
         currentTask = task;
         myRepo = repo;
 
         myTaskManager = TaskManager.getManager(project);
-        myPreviousTask = myTaskManager.getActiveTask();
-        VcsTaskHandler[] vcsTaskHAndlers = VcsTaskHandler.getAllHandlers(project);
-        if (vcsTaskHAndlers.length > 0){
-            //todo handle case of multiple vcs handlers
-            myVcsTaskHandler = vcsTaskHAndlers[0];
-        }
+        VcsTaskHandler[] vcsTaskHandlers = VcsTaskHandler.getAllHandlers(project);
+        //todo handle case of multiple vcs handlers
+        VcsTaskHandler vcsTaskHandler = vcsTaskHandlers.length > 0 ? vcsTaskHandlers[0] : null;
 
         gitflowState = ServiceManager.getService(GitflowState.class);
         gitflowBranchUtil = GitflowBranchUtilManager.getBranchUtil(myRepo);
 
         GitflowConfigUtil gitflowConfigUtil = GitflowConfigUtil.getInstance(project, myRepo);
 
+        String branchName = vcsTaskHandler != null
+            ? vcsTaskHandler.cleanUpBranchName(myTaskManager.constructDefaultBranchName(task))
+            : myTaskManager.suggestBranchName(task);
 
-        String defaultFeatureBranch = gitflowConfigUtil.developBranch;
-        featureBaseBranch.setModel(gitflowBranchUtil.createBranchComboModel(defaultFeatureBranch));
+        featureName = TextBox.create(branchName);
+        featureBaseBranch = createBranchCombo(gitflowConfigUtil.developBranch);
+        hotfixName = TextBox.create(branchName);
+        hotfixBaseBranch = createBranchCombo(gitflowConfigUtil.masterBranch);
+        bugfixName = TextBox.create(branchName);
+        bugfixBaseBranch = createBranchCombo(gitflowConfigUtil.developBranch);
 
-        String defaultHotfixBranch = gitflowConfigUtil.masterBranch;
-        hotfixBaseBranch.setModel(gitflowBranchUtil.createBranchComboModel(defaultHotfixBranch));
+        FormBuilder builder = FormBuilder.create();
+        builder.addLabeled(myMode.newButton(LocalizeValue.localizeTODO("No action"), Mode.NONE), Label.create(LocalizeValue.empty()));
+        addRow(builder, Mode.FEATURE, "Start Feature", featureName, featureBaseBranch);
+        addRow(builder, Mode.HOTFIX, "Start Hotfix", hotfixName, hotfixBaseBranch);
+        addRow(builder, Mode.BUGFIX, "Start Bugfix", bugfixName, bugfixBaseBranch);
+        myComponent = builder.build();
 
-        String defaultBugfixBranch = gitflowConfigUtil.developBranch;
-        bugfixBaseBranch.setModel(gitflowBranchUtil.createBranchComboModel(defaultBugfixBranch));
-
-        myRepo = GitBranchUtil.getCurrentRepository(project);
-
-        String branchName = myVcsTaskHandler != null
-                                            ? myVcsTaskHandler.cleanUpBranchName(myTaskManager.constructDefaultBranchName(task))
-                                            : myTaskManager.suggestBranchName(task);
-
-        featureName.setText(branchName);
-        featureName.setEditable(false);
-        featureName.setEnabled(false);
-
-        hotfixName.setText(branchName);
-        hotfixName.setEditable(false);
-        hotfixName.setEnabled(false);
-
-        bugfixName.setText(branchName);
-        bugfixName.setEditable(false);
-        bugfixName.setEnabled(false);
-
-        featureBaseBranch.setEnabled(false);
-        hotfixBaseBranch.setEnabled(false);
-        bugfixBaseBranch.setEnabled(false);
-
-        //add listeners
-        noActionRadioButton.addItemListener(this);
-        startFeatureRadioButton.addItemListener(this);
-        startHotfixRadioButton.addItemListener(this);
-        startBugfixRadioButton.addItemListener(this);
-
+        myMode.setValue(Mode.NONE, false);
+        myMode.addValueListener(mode -> updateFields());
+        updateFields();
     }
 
-    @NotNull
+    @RequiredUIAccess
+    private ComboBox<GitflowBranchUtil.ComboEntry> createBranchCombo(String defaultBranch) {
+        List<GitflowBranchUtil.ComboEntry> entries = gitflowBranchUtil.createBranchComboEntries(defaultBranch);
+        ComboBox<GitflowBranchUtil.ComboEntry> comboBox = ComboBox.create(entries);
+        comboBox.setTextRenderer(entry -> entry == null ? LocalizeValue.empty() : LocalizeValue.of(entry.toString()));
+        if (!entries.isEmpty()) {
+            comboBox.setValue(entries.get(0));
+        }
+        return comboBox;
+    }
+
+    @RequiredUIAccess
+    private void addRow(FormBuilder builder,
+                        Mode mode,
+                        String text,
+                        TextBox name,
+                        ComboBox<GitflowBranchUtil.ComboEntry> baseBranch) {
+        RadioButton button = myMode.newButton(LocalizeValue.localizeTODO(text), mode);
+
+        HorizontalLayout row = HorizontalLayout.create(Space.SMALL);
+        row.add(name);
+        row.add(Label.create(LocalizeValue.localizeTODO("base branch")));
+        row.add(baseBranch);
+        builder.addLabeled(button, row);
+    }
+
+    @RequiredUIAccess
+    private void updateFields() {
+        Mode mode = myMode.getValue();
+        featureName.setEnabled(mode == Mode.FEATURE);
+        featureBaseBranch.setEnabled(mode == Mode.FEATURE);
+        hotfixName.setEnabled(mode == Mode.HOTFIX);
+        hotfixBaseBranch.setEnabled(mode == Mode.HOTFIX);
+        bugfixName.setEnabled(mode == Mode.BUGFIX);
+        bugfixBaseBranch.setEnabled(mode == Mode.BUGFIX);
+    }
+
+    @RequiredUIAccess
     @Override
-    public JComponent getPanel() {
-        return myPanel;
+    public Component getComponent() {
+        return myComponent;
     }
 
+    @RequiredUIAccess
     @Override
     public void commit() {
-
-        final GitflowBranchUtil.ComboEntry selectedFeatureBaseBranch = (GitflowBranchUtil.ComboEntry) featureBaseBranch.getModel().getSelectedItem();
-        final GitflowBranchUtil.ComboEntry selectedHotfixBaseBranch = (GitflowBranchUtil.ComboEntry) hotfixBaseBranch.getModel().getSelectedItem();
-        final GitflowBranchUtil.ComboEntry selectedBugfixBaseBranch = (GitflowBranchUtil.ComboEntry) bugfixBaseBranch.getModel().getSelectedItem();
+        Mode mode = myMode.getValue();
+        if (mode == null || mode == Mode.NONE) {
+            return;
+        }
 
         GitflowConfigUtil gitflowConfigUtil = GitflowConfigUtil.getInstance(myProject, myRepo);
+        switch (mode) {
+            case FEATURE -> start(new StartFeatureAction(myRepo), featureBaseBranch, gitflowConfigUtil.featurePrefix + featureName.getValue());
+            case HOTFIX -> start(new StartHotfixAction(myRepo), hotfixBaseBranch, gitflowConfigUtil.hotfixPrefix + hotfixName.getValue());
+            case BUGFIX -> start(new StartBugfixAction(myRepo), bugfixBaseBranch, gitflowConfigUtil.bugfixPrefix + bugfixName.getValue());
+            default -> {
+            }
+        }
+    }
 
-        if (startFeatureRadioButton.isSelected()) {
-            final String branchName = gitflowConfigUtil.featurePrefix + featureName.getText();
-            attachTaskAndRunAction(new StartFeatureAction(myRepo), selectedFeatureBaseBranch.getBranchName(), branchName);
+    private void start(GitflowAction action, ComboBox<GitflowBranchUtil.ComboEntry> baseBranch, String fullBranchName) {
+        GitflowBranchUtil.ComboEntry selected = baseBranch.getValue();
+        if (selected == null) {
+            return;
         }
-        else if (startHotfixRadioButton.isSelected()) {
-            final String branchName = gitflowConfigUtil.hotfixPrefix + hotfixName.getText();
-            attachTaskAndRunAction(new StartHotfixAction(myRepo), selectedHotfixBaseBranch.getBranchName(), branchName);
-        } else if (startBugfixRadioButton.isSelected()) {
-            final String branchName = gitflowConfigUtil.bugfixPrefix + bugfixName.getText();
-            attachTaskAndRunAction(new StartBugfixAction(myRepo), selectedBugfixBaseBranch.getBranchName(), branchName);
-        }
+        attachTaskAndRunAction(action, selected.getBranchName(), fullBranchName);
     }
 
     /**
-     * @param action instance of GitflowAction
+     * @param action         instance of GitflowAction
      * @param baseBranchName Branch name of the branch the new one is based on
      * @param fullBranchName Branch name with feature/hotfix/bugfix prefix for saving to task
      */
@@ -145,77 +176,15 @@ public class GitflowOpenTaskPanel extends TaskDialogPanel implements ItemListene
         final String branchName = gitflowBranchUtil.stripFullBranchName(fullBranchName);
 
         //Create new branch / checkout branch
-        action.runAction(myProject, baseBranchName, branchName, new Runnable() {
-            @Override
-            public void run() {
-                final TaskInfo[] next = {new TaskInfo(fullBranchName, Collections.singleton(myRepo.getPresentableUrl()))};
-                final LocalTask localTask = myTaskManager.getActiveTask();
+        action.runAction(myProject, baseBranchName, branchName, () -> {
+            final TaskInfo[] next = {new TaskInfo(fullBranchName, Collections.singleton(myRepo.getPresentableUrl()))};
+            final LocalTask localTask = myTaskManager.getActiveTask();
 
-                //Add branch to task
-                myTaskManager.addBranches(localTask, next, false);
+            //Add branch to task
+            myTaskManager.addBranches(localTask, next, false);
 
-                //maps branch to task
-                gitflowState.setTaskBranch(currentTask, fullBranchName);
-            }
+            //maps branch to task
+            gitflowState.setTaskBranch(currentTask, fullBranchName);
         });
-    }
-
-    @Override
-    public void itemStateChanged(ItemEvent e) {
-        Object source = e.getItemSelectable();
-
-        //disable\enable textfields based on radio selection
-        if (e.getStateChange() == ItemEvent.SELECTED && source == noActionRadioButton) {
-            featureName.setEditable(false);
-            featureName.setEnabled(false);
-            featureBaseBranch.setEnabled(false);
-
-            hotfixName.setEditable(false);
-            hotfixName.setEnabled(false);
-            hotfixBaseBranch.setEnabled(false);
-
-            bugfixName.setEditable(false);
-            bugfixName.setEnabled(false);
-            bugfixBaseBranch.setEnabled(false);
-        }
-        else if (e.getStateChange() == ItemEvent.SELECTED && source == startFeatureRadioButton) {
-            featureName.setEditable(true);
-            featureName.setEnabled(true);
-            featureBaseBranch.setEnabled(true);
-
-            hotfixName.setEditable(false);
-            hotfixName.setEnabled(false);
-            hotfixBaseBranch.setEnabled(false);
-
-            bugfixName.setEditable(false);
-            bugfixName.setEnabled(false);
-            bugfixBaseBranch.setEnabled(false);
-        }
-        else if (e.getStateChange() == ItemEvent.SELECTED && source == startHotfixRadioButton) {
-            featureName.setEditable(false);
-            featureName.setEnabled(false);
-            featureBaseBranch.setEnabled(false);
-
-            hotfixName.setEditable(true);
-            hotfixName.setEnabled(true);
-            hotfixBaseBranch.setEnabled(true);
-
-            bugfixName.setEditable(false);
-            bugfixName.setEnabled(false);
-            bugfixBaseBranch.setEnabled(false);
-        } else if (e.getStateChange() == ItemEvent.SELECTED && source == startBugfixRadioButton) {
-            featureName.setEditable(false);
-            featureName.setEnabled(false);
-            featureBaseBranch.setEnabled(false);
-
-            hotfixName.setEditable(false);
-            hotfixName.setEnabled(false);
-            hotfixBaseBranch.setEnabled(false);
-
-            bugfixName.setEditable(true);
-            bugfixName.setEnabled(true);
-            bugfixBaseBranch.setEnabled(true);
-        }
-
     }
 }
