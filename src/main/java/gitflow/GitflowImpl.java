@@ -10,7 +10,7 @@ import jakarta.inject.Singleton;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -481,7 +481,7 @@ public class GitflowImpl implements Gitflow {
 
     @Override
     public GitCommandResult version(@NotNull Project project, GitLineHandlerListener... listeners) {
-        final GitLineHandler h = new GitLineHandler(project, new File(project.getBasePath()), flowCommand());
+        final GitLineHandler h = new GitLineHandler(project, Path.of(project.getBasePath()), flowCommand());
 
         h.addParameters("version");
 

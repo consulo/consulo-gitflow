@@ -1,6 +1,7 @@
 package gitflow;
 
 import consulo.process.ExecutionException;
+import consulo.process.ProcessHandler;
 import consulo.project.Project;
 import consulo.util.dataholder.Key;
 import consulo.virtualFileSystem.VirtualFile;
@@ -39,9 +40,9 @@ public class GitInitLineHandler extends GitLineHandler {
 
     @Nullable
     @Override
-    protected Process startProcess() throws ExecutionException {
-        Process p = super.startProcess();
-        writer = new BufferedWriter(new OutputStreamWriter(p.getOutputStream()));
+    protected ProcessHandler startProcess() throws ExecutionException {
+        ProcessHandler p = super.startProcess();
+        writer = new BufferedWriter(new OutputStreamWriter(p.getProcessInput()));
         return p;
     }
 
